@@ -5,9 +5,9 @@ namespace EasyBuy.Domain.Entities.Identity;
 
 public class AppUser : BaseEntity<int>
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public Email Email { get; set; } // Value Object
-    public PhoneNumber PhoneNumber { get; set; } // Value Object
-    public Address Address { get; set; } // Value Object
+    public required string FirstName { get; init; }
+    public required string LastName { get; init; }
+    public Email? Email { get; init; } 
+    public PhoneNumber? PhoneNumber { get; init; } 
+    public Address? Address { get; init; } 
 }

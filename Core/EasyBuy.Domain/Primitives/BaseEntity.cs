@@ -1,23 +1,22 @@
 namespace EasyBuy.Domain.Primitives;
 
-
-    /*
-     Sorumluluk: Domain içinde ortak davranışları ve özellikleri tanımlar (ör. CreatedAt, UpdatedAt, IsDeleted).
-       Kullanım Alanı: Daha genel bir yapı sağlar ve Entity'den türetilir.
-     */
-
 public abstract class BaseEntity<TId> : Entity<TId>
 {
-    public DateTime CreatedAt { get; protected set; }
-    public DateTime UpdatedAt { get; protected set; }
-    public bool IsDeleted { get; private set; }
+    /*
+ Sorumluluk: Domain içinde ortak davranışları ve özellikleri tanımlar (ör. CreatedAt, UpdatedAt, IsDeleted).
+   Kullanım Alanı: Daha genel bir yapı sağlar ve Entity'den türetilir.
+ */
 
-    protected BaseEntity() : base()
+    protected BaseEntity()
     {
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
         IsDeleted = false;
     }
+
+    public DateTime CreatedAt { get; protected set; }
+    public DateTime UpdatedAt { get; protected set; }
+    public bool IsDeleted { get; private set; }
 
     public void MarkAsDeleted()
     {
@@ -29,6 +28,3 @@ public abstract class BaseEntity<TId> : Entity<TId>
         UpdatedAt = DateTime.UtcNow;
     }
 }
-
-
-

@@ -1,32 +1,47 @@
-using EasyBuy.Domain.Primitives;
-
 namespace EasyBuy.Domain.ValueObjects;
 
-public class Price : ValueObject
+public readonly struct Price : IEquatable<Price>
 {
     public decimal Amount { get; }
     public string Currency { get; }
 
-    private Price(decimal amount, string currency)
+    public Price(decimal amount, string currency)
     {
-        Amount = Guard.Against.NegativeOrZero(amount, nameof(amount));
-        Currency = Guard.Against.NullOrEmpty(currency, nameof(currency));
+        if (amount <= 0) throw new ArgumentException("Amount must be positive.", nameof(amount));
+        if (string.IsNullOrEmpty(currency))
+            throw new ArgumentException("Currency cannot be null or empty.", nameof(currency));
+
+        Amount = amount;
+        Currency = currency;
     }
 
-    public static Price Create(decimal amount, string currency)
+    public override bool Equals(object obj)
     {
-        // İş kuralı: Belirli bir para birimi formatı kontrolü
-        if (currency.Length != 3)
-            throw new ArgumentException("Currency must be a valid ISO 4217 code.", nameof(currency));
-
-        return new Price(amount, currency);
+        return obj is Price other && Equals(other);
     }
 
-    public override string ToString() => $"{Amount} {Currency}";
-
-    protected override IEnumerable<object> GetEqualityComponents()
+    public bool Equals(Price other)
     {
-        yield return Amount;
-        yield return Currency;
+        return Amount == other.Amount && Currency == other.Currency;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Amount, Currency);
+    }
+
+    public static bool operator ==(Price left, Price right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Price left, Price right)
+    {
+        return !(left == right);
+    }
+
+    public override string ToString()
+    {
+        return $"{Amount} {Currency}";
     }
 }

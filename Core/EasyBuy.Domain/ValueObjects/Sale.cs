@@ -4,10 +4,6 @@ namespace EasyBuy.Domain.ValueObjects;
 
 public class Sale : ValueObject
 {
-    public decimal DiscountPercentage { get; }
-    public DateTime StartDate { get; }
-    public DateTime EndDate { get; }
-
     private Sale(decimal discountPercentage, DateTime startDate, DateTime endDate)
     {
         if (discountPercentage is < 0 or > 100)
@@ -21,8 +17,14 @@ public class Sale : ValueObject
         EndDate = endDate;
     }
 
-    public static Sale Create(decimal discountPercentage, DateTime startDate, DateTime endDate) =>
-        new Sale(discountPercentage, startDate, endDate);
+    public decimal DiscountPercentage { get; }
+    public DateTime StartDate { get; }
+    public DateTime EndDate { get; }
+
+    public static Sale Create(decimal discountPercentage, DateTime startDate, DateTime endDate)
+    {
+        return new Sale(discountPercentage, startDate, endDate);
+    }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

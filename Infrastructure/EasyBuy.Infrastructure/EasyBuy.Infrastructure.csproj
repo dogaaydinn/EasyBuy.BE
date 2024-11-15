@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Core\EasyBuy.Application\EasyBuy.Application.csproj" />
+        <ProjectReference Include="..\..\Core\EasyBuy.Application\EasyBuy.Application.csproj"/>
     </ItemGroup>
 
 </Project>

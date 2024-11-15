@@ -1,38 +1,54 @@
-using EasyBuy.Domain.Primitives;
-
 namespace EasyBuy.Domain.ValueObjects;
 
-public class Address : ValueObject
+public readonly struct Address : IEquatable<Address>
 {
     public string Street { get; }
     public string City { get; }
     public string State { get; }
     public string PostalCode { get; }
 
-    private Address(string street, string city, string state, string postalCode)
+    public Address(string street, string city, string state, string postalCode)
     {
-        Street = Guard.Against.NullOrEmpty(street, nameof(street));
-        City = Guard.Against.NullOrEmpty(city, nameof(city));
-        State = Guard.Against.NullOrEmpty(state, nameof(state));
-        PostalCode = Guard.Against.NullOrEmpty(postalCode, nameof(postalCode));
+        if (string.IsNullOrEmpty(street))
+            throw new ArgumentException("Street cannot be null or empty.", nameof(street));
+        if (string.IsNullOrEmpty(city)) throw new ArgumentException("City cannot be null or empty.", nameof(city));
+        if (string.IsNullOrEmpty(state)) throw new ArgumentException("State cannot be null or empty.", nameof(state));
+        if (string.IsNullOrEmpty(postalCode))
+            throw new ArgumentException("PostalCode cannot be null or empty.", nameof(postalCode));
+
+        Street = street;
+        City = city;
+        State = state;
+        PostalCode = postalCode;
     }
 
-    public static Address Create(string street, string city, string state, string postalCode)
+    public override bool Equals(object obj)
     {
-        // İş kuralı: Posta kodu uzunluğu kontrolü
-        if (postalCode.Length != 5)
-            throw new ArgumentException("PostalCode must be 5 characters long.", nameof(postalCode));
-
-        return new Address(street, city, state, postalCode);
+        return obj is Address other && Equals(other);
     }
 
-    public override string ToString() => $"{Street}, {City}, {State}, {PostalCode}";
-
-    protected override IEnumerable<object> GetEqualityComponents()
+    public bool Equals(Address other)
     {
-        yield return Street;
-        yield return City;
-        yield return State;
-        yield return PostalCode;
+        return Street == other.Street && City == other.City && State == other.State && PostalCode == other.PostalCode;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Street, City, State, PostalCode);
+    }
+
+    public static bool operator ==(Address left, Address right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Address left, Address right)
+    {
+        return !(left == right);
+    }
+
+    public override string ToString()
+    {
+        return $"{Street}, {City}, {State}, {PostalCode}";
     }
 }

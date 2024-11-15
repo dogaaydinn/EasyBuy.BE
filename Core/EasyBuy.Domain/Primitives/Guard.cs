@@ -3,7 +3,7 @@ namespace EasyBuy.Domain.Primitives;
 public static class Guard
 {
     public static dynamic Against { get; set; }
-    
+
     public static T AgainstNullOrEmpty<T>(T value, string parameterName) where T : class
     {
         if (string.IsNullOrWhiteSpace(value as string))

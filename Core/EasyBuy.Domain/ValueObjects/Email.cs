@@ -1,26 +1,59 @@
-using EasyBuy.Domain.Primitives;
+using System.Net.Mail;
 
-public class Email : ValueObject
+namespace EasyBuy.Domain.ValueObjects;
+
+public readonly struct Email : IEquatable<Email>
 {
-    public string Address { get; }
+    public string Value { get; }
 
-    public Email(string address)
+    public Email(string value)
     {
-        if (string.IsNullOrWhiteSpace(address) || !address.Contains("@"))
-        {
-            throw new ArgumentException("Invalid email address", nameof(address));
-        }
+        if (string.IsNullOrEmpty(value)) throw new ArgumentException("Email cannot be null or empty.", nameof(value));
+        if (!IsValidEmail(value)) throw new ArgumentException("Invalid email format.", nameof(value));
 
-        Address = address;
+        Value = value;
     }
 
-    protected override IEnumerable<object> GetEqualityComponents()
+    private static bool IsValidEmail(string value)
     {
-        yield return Address.ToLower(); // Case-insensitive comparison
+        try
+        {
+            var mailAddress = new MailAddress(value);
+            return mailAddress.Address == value;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Email other && Equals(other);
+    }
+
+    public bool Equals(Email other)
+    {
+        return Value == other.Value;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+
+    public static bool operator ==(Email left, Email right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Email left, Email right)
+    {
+        return !(left == right);
     }
 
     public override string ToString()
     {
-        return Address;
+        return Value;
     }
 }

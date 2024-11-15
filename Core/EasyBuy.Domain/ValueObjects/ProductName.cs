@@ -1,16 +1,46 @@
 namespace EasyBuy.Domain.ValueObjects;
 
-public class ProductName
+public class ProductName : IEquatable<ProductName>
 {
-    public string Name { get; private set; }
-
-    public ProductName(string name)
+    public ProductName(string value)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Product name cannot be empty.");
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Product name cannot be empty.", nameof(value));
+        if (value.Length > 100)
+            throw new ArgumentException("Product name cannot exceed 100 characters.", nameof(value));
 
-        Name = name;
+        Value = value;
     }
 
-    public override string ToString() => Name;
+    public string Value { get; }
+
+    public bool Equals(ProductName other)
+    {
+        return Value == other.Value;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ProductName other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+
+    public static bool operator ==(ProductName left, ProductName right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ProductName left, ProductName right)
+    {
+        return !(left == right);
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

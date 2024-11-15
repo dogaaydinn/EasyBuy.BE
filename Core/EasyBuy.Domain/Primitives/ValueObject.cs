@@ -19,9 +19,6 @@ public abstract class ValueObject
     public override int GetHashCode()
     {
         return GetEqualityComponents()
-            .Aggregate(1, (current, obj) =>
-            {
-                return HashCode.Combine(current, obj);
-            });
+            .Aggregate(1, (current, obj) => { return HashCode.Combine(current, obj); });
     }
 }
