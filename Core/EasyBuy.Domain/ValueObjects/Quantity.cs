@@ -4,9 +4,13 @@ namespace EasyBuy.Domain.ValueObjects;
 
 public class Quantity : ValueObject
 {
-    private Quantity(int value)
+    private Quantity(dynamic value)
     {
-        Value = Guard.Against.NegativeOrZero(value, nameof(value));
+        if (value <= 0)
+        {
+            throw new ArgumentException("Value must be greater than zero.", nameof(value));
+        }
+        Value = value;
     }
 
     public int Value { get; }

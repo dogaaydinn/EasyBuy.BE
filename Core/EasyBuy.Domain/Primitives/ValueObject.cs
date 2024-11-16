@@ -1,24 +1,23 @@
-namespace EasyBuy.Domain.Primitives;
-
-public abstract class ValueObject
+namespace EasyBuy.Domain.Primitives
 {
-    //ValueObject, domain içinde bir değer türünü temsil eden, değiştirilemez (immutable) ve bir kimlik (Id) yerine değerleriyle eşitliği tanımlanan bir yapıdır.
-    protected abstract IEnumerable<object> GetEqualityComponents();
-
-    public override bool Equals(object obj)
+    public abstract class ValueObject
     {
-        if (obj == null || GetType() != obj.GetType())
-            return false;
+        protected abstract IEnumerable<object> GetEqualityComponents();
 
-        var valueObject = (ValueObject)obj;
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != GetType())
+                return false;
 
-        return GetEqualityComponents()
-            .SequenceEqual(valueObject.GetEqualityComponents());
-    }
+            var other = (ValueObject)obj;
+            return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
+        }
 
-    public override int GetHashCode()
-    {
-        return GetEqualityComponents()
-            .Aggregate(1, (current, obj) => { return HashCode.Combine(current, obj); });
+        public override int GetHashCode()
+        {
+            return GetEqualityComponents()
+                .Select(x => x != null ? x.GetHashCode() : 0)
+                .Aggregate((x, y) => x ^ y);
+        }
     }
 }

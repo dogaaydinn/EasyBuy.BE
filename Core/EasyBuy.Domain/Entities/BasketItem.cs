@@ -14,8 +14,9 @@ public class BasketItem : BaseEntity<int>
         Basket = basket ?? throw new ArgumentNullException(nameof(basket));
     }
 
-    public required int Quantity { get; init; } = 1; 
-    public required int ProductId { get; init; } 
+    public required decimal Price { get; init; }
+    public required int Quantity { get; init; } = 1;
+    public required int ProductId { get; init; }
     public required Product Product { get; init; }
     public required int BasketId { get; init; }
     public required Basket Basket { get; init; }

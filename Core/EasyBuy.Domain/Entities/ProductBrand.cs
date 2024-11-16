@@ -11,18 +11,22 @@ public class ProductBrand : BaseEntity<int>
 
         if (name.Length > 100)
             throw new ArgumentException("Brand name cannot be longer than 100 characters", nameof(name));
-
-        Name = name;
+            
+        Name = name.Trim();  
     }
+
     public string Name { get; }
+
     public override bool Equals(object? obj)
     {
-        return obj is ProductBrand other && Name == other.Name;
+        return obj is ProductBrand other && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
     }
+
     public override int GetHashCode()
     {
         return Name.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
+
     public override string ToString()
     {
         return Name;

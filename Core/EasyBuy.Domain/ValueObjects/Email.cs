@@ -1,40 +1,41 @@
-using System.Net.Mail;
+using System.Text.RegularExpressions;
+using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.ValueObjects;
 
-public readonly struct Email : IEquatable<Email>
+public sealed partial class Email : ValueObject
 {
-    public string Value { get; }
+    private bool Equals(Email other)
+    {
+        return base.Equals(other) && Value == other.Value;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return ReferenceEquals(this, obj) || obj is Email other && Equals(other);
+    }
 
     public Email(string value)
     {
-        if (string.IsNullOrEmpty(value)) throw new ArgumentException("Email cannot be null or empty.", nameof(value));
-        if (!IsValidEmail(value)) throw new ArgumentException("Invalid email format.", nameof(value));
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentNullException(nameof(value), "Email cannot be null or empty.");
+        if (!IsValidEmail(value)) 
+            throw new FormatException("Invalid email format.");
 
         Value = value;
     }
 
+    public string Value { get; }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+    }
+
     private static bool IsValidEmail(string value)
     {
-        try
-        {
-            var mailAddress = new MailAddress(value);
-            return mailAddress.Address == value;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is Email other && Equals(other);
-    }
-
-    public bool Equals(Email other)
-    {
-        return Value == other.Value;
+        const string emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return MyRegex().IsMatch(value);
     }
 
     public override int GetHashCode()
@@ -56,4 +57,7 @@ public readonly struct Email : IEquatable<Email>
     {
         return Value;
     }
+
+    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
 }

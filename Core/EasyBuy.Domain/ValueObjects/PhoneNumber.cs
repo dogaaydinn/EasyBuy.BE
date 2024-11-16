@@ -1,29 +1,29 @@
 namespace EasyBuy.Domain.ValueObjects;
 
-public readonly struct PhoneNumber : IEquatable<PhoneNumber>
+public sealed class PhoneNumber : IEquatable<PhoneNumber>
 {
-    public string CountryCode { get; }
-    public string Number { get; }
-
     public PhoneNumber(string countryCode, string number)
     {
-        if (string.IsNullOrEmpty(countryCode))
-            throw new ArgumentException("Country code cannot be null or empty.", nameof(countryCode));
-        if (string.IsNullOrEmpty(number))
-            throw new ArgumentException("Phone number cannot be null or empty.", nameof(number));
+        if (string.IsNullOrWhiteSpace(countryCode))
+            throw new ArgumentNullException(nameof(countryCode), "Country code cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(number))
+            throw new ArgumentNullException(nameof(number), "Phone number cannot be null or empty.");
 
         CountryCode = countryCode;
         Number = number;
     }
 
-    public override bool Equals(object obj)
+    public string CountryCode { get; }
+    public string Number { get; }
+
+    public bool Equals(PhoneNumber? other)
     {
-        return obj is PhoneNumber other && Equals(other);
+        return CountryCode == other?.CountryCode && Number == other.Number;
     }
 
-    public bool Equals(PhoneNumber other)
+    public override bool Equals(object? obj)
     {
-        return CountryCode == other.CountryCode && Number == other.Number;
+        return obj is PhoneNumber other && Equals(other);
     }
 
     public override int GetHashCode()

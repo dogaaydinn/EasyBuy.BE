@@ -1,30 +1,25 @@
 namespace EasyBuy.Domain.Primitives;
 
-public abstract class Entity<TId>
+public abstract class Entity<TId> : BaseEntity<TId>
 {
-    /*
-     *Sorumluluk: Bir varlığın temel özelliklerini tanımlar. Örneğin, sadece bir Id'ye sahiptir ve diğer özellikleri barındırmaz.
-       Kullanım Alanı: Domain'e özgü tüm varlıkların temel soyut sınıfıdır.
-     */
-
     protected Entity()
     {
     }
 
-    protected Entity(TId id)
+    protected Entity(TId id) : base()
     {
         Id = id;
     }
 
     public TId Id { get; protected set; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (obj == null || obj.GetType() != GetType())
-            return false;
-
-        var entity = (Entity<TId>)obj;
-        return EqualityComparer<TId>.Default.Equals(Id, entity.Id);
+        if (obj is Entity<TId> entity)
+        {
+            return EqualityComparer<TId>.Default.Equals(Id, entity.Id);
+        }
+        return false;
     }
 
     public override int GetHashCode()
