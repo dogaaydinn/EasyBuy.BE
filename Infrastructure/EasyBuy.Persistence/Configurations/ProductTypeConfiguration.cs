@@ -15,6 +15,6 @@ public class ProductTypeConfiguration : IEntityTypeConfiguration<ProductType>
             .HasMaxLength(100)
             .HasConversion(
                 v => v,
-                v => new ProductType(v).Name);
+                v => new ProductType(v, Guid.NewGuid()).Name);
     }
 }

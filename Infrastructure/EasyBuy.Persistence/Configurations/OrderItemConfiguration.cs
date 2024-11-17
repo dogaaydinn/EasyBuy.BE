@@ -23,7 +23,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(oi => oi.Product)
-            .WithMany()
+            .WithMany(p => p.OrderItems) 
             .HasForeignKey(oi => oi.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
     }

@@ -1,13 +1,13 @@
+using EasyBuy.Domain.Primitives;
+
 namespace EasyBuy.Domain.ValueObjects;
 
-public sealed class PhoneNumber : IEquatable<PhoneNumber>
+public class PhoneNumber : ValueObject
 {
     public PhoneNumber(string countryCode, string number)
     {
-        if (string.IsNullOrWhiteSpace(countryCode))
-            throw new ArgumentNullException(nameof(countryCode), "Country code cannot be null or empty.");
-        if (string.IsNullOrWhiteSpace(number))
-            throw new ArgumentNullException(nameof(number), "Phone number cannot be null or empty.");
+        Guard.AgainstNullOrWhiteSpace(countryCode, nameof(countryCode)); 
+        Guard.AgainstNullOrWhiteSpace(number, nameof(number)); 
 
         CountryCode = countryCode;
         Number = number;
@@ -16,33 +16,9 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>
     public string CountryCode { get; }
     public string Number { get; }
 
-    public bool Equals(PhoneNumber? other)
+    protected override IEnumerable<object> GetEqualityComponents()
     {
-        return CountryCode == other?.CountryCode && Number == other.Number;
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is PhoneNumber other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(CountryCode, Number);
-    }
-
-    public static bool operator ==(PhoneNumber left, PhoneNumber right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(PhoneNumber left, PhoneNumber right)
-    {
-        return !(left == right);
-    }
-
-    public override string ToString()
-    {
-        return $"{CountryCode} {Number}";
+        yield return CountryCode;
+        yield return Number;
     }
 }

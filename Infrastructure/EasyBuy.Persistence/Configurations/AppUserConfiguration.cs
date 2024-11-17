@@ -2,59 +2,59 @@ using EasyBuy.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EasyBuy.Persistence.Configurations
+namespace EasyBuy.Persistence.Configurations;
+
+public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 {
-    public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
+    public void Configure(EntityTypeBuilder<AppUser> builder)
     {
-        public void Configure(EntityTypeBuilder<AppUser> builder)
+        builder.Property(u => u.FirstName)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(u => u.LastName)
+            .HasMaxLength(100)
+            .IsRequired();
+        
+        builder.OwnsOne(u => u.Email, email =>
         {
-            // Configuring FirstName and LastName as required properties with max length
-            builder.Property(u => u.FirstName)
-                .IsRequired() // Ensures that FirstName is required
-                .HasMaxLength(50); // Limits the length to 50 characters
+            email.Property(e => e.Address)
+                .HasColumnName("Email") 
+                .IsRequired()
+                .HasMaxLength(150);
+        });
+        
+        builder.HasIndex(u => u.Email.Address).HasDatabaseName("IX_AppUser_Email");
+        
+        builder.OwnsOne(u => u.PhoneNumber, phone =>
+        {
+            phone.Property(p => p.Number)
+                .HasColumnName("PhoneNumber") 
+                .IsRequired()
+                .HasMaxLength(20); 
+        });
+        
+        builder.OwnsOne(u => u.Address, address =>
+        {
+            address.Property(a => a.Street)
+                .HasColumnName("Street")
+                .HasMaxLength(200)
+                .IsRequired();
 
-            builder.Property(u => u.LastName)
-                .IsRequired() // Ensures that LastName is required
-                .HasMaxLength(50); // Limits the length to 50 characters
+            address.Property(a => a.City)
+                .HasColumnName("City")
+                .HasMaxLength(100)
+                .IsRequired();
 
-            // Configuring the Email value object
-            builder.OwnsOne(
-                u => u.Email, 
-                email =>
-                {
-                    email.Property(e => e.Value)
-                        .IsRequired() // Ensures that the email value is required
-                        .HasMaxLength(150) // Limits the email length to 150 characters
-                        .HasColumnName("Email"); // Column name in the database
-                });
+            address.Property(a => a.State)
+                .HasColumnName("State")
+                .HasMaxLength(100)
+                .IsRequired();
 
-            // Configuring the PhoneNumber value object (if needed)
-            builder.OwnsOne(
-                u => u.PhoneNumber, 
-                phone =>
-                {
-                    phone.Property(p => p.Value)
-                        .HasMaxLength(20) // Adjust max length for phone number as per your needs
-                        .HasColumnName("PhoneNumber"); // Column name in the database
-                });
-
-            // Configuring the Address value object
-            builder.OwnsOne(
-                u => u.Address, 
-                address =>
-                {
-                    address.Property(a => a.Street)
-                        .HasMaxLength(100) // Adjust the length as per your needs
-                        .HasColumnName("Street"); // Column name in the database
-
-                    address.Property(a => a.City)
-                        .HasMaxLength(50) // Adjust the length as per your needs
-                        .HasColumnName("City"); // Column name in the database
-
-                    address.Property(a => a.ZipCode)
-                        .HasMaxLength(20) // Adjust the length as per your needs
-                        .HasColumnName("ZipCode"); // Column name in the database
-                });
-        }
+            address.Property(a => a.PostalCode.Code)
+                .HasColumnName("PostalCode")
+                .HasMaxLength(20)
+                .IsRequired();
+        });
     }
 }

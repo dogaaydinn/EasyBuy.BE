@@ -2,22 +2,40 @@ using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class BasketItem : BaseEntity<int>
+public class BasketItem : Entity<Guid>
 {
-    public BasketItem(int quantity, int productId, Product product, int basketId, Basket basket)
+    public BasketItem(Guid basketId, Guid productId, int quantity, decimal price, Guid id, Basket basket, Product product) : base(id)
     {
-        if (quantity <= 0) throw new ArgumentException("Quantity must be greater than 0.", nameof(quantity));
-        Quantity = quantity;
-        ProductId = productId;
-        Product = product ?? throw new ArgumentNullException(nameof(product));
+        if (basketId == Guid.Empty)
+            throw new ArgumentException("Basket ID must be a valid GUID.", nameof(basketId));
+
+        if (productId == Guid.Empty)
+            throw new ArgumentException("Product ID must be a valid GUID.", nameof(productId));
+
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
+
+        if (price <= 0)
+            throw new ArgumentException("Price must be greater than zero.", nameof(price));
+
         BasketId = basketId;
-        Basket = basket ?? throw new ArgumentNullException(nameof(basket));
+        ProductId = productId;
+        Quantity = quantity;
+        Price = price;
+        Basket = basket;
+        Product = product;
     }
 
-    public required decimal Price { get; init; }
-    public required int Quantity { get; init; } = 1;
-    public required int ProductId { get; init; }
-    public required Product Product { get; init; }
-    public required int BasketId { get; init; }
-    public required Basket Basket { get; init; }
+    public Guid BasketId { get; }
+    public Guid ProductId { get; }
+    public int Quantity { get; }
+    public decimal Price { get; }
+
+    public Basket Basket { get; set; }
+    public Product Product { get; set; }
+
+    public override string ToString()
+    {
+        return $"Basket ID: {BasketId}, Product ID: {ProductId}, Quantity: {Quantity}, Price: {Price}";
+    }
 }

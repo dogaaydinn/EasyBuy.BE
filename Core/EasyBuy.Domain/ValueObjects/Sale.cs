@@ -20,7 +20,7 @@ public class Sale : ValueObject
     public decimal DiscountPercentage { get; }
     public DateTime StartDate { get; }
     public DateTime EndDate { get; }
-
+    
     public static Sale Create(decimal discountPercentage, DateTime startDate, DateTime endDate)
     {
         return new Sale(discountPercentage, startDate, endDate);

@@ -9,11 +9,11 @@ public class PriceConfiguration : IEntityTypeConfiguration<Price>
     public void Configure(EntityTypeBuilder<Price> builder)
     {
         builder.Property(p => p.Amount)
-            .HasColumnType("decimal(18,2)")
+            .HasColumnType("decimal(18,2)") 
             .IsRequired();
-        
+
         builder.Property(p => p.Currency)
-            .HasMaxLength(3)
+            .HasMaxLength(3) 
             .IsRequired();
     }
 }

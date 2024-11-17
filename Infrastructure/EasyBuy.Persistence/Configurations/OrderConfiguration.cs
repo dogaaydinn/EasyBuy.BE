@@ -13,7 +13,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
 
         builder.Property(o => o.Total)
-            .HasColumnType("decimal(18,2)") 
+            .HasColumnType("decimal(18,2)")
             .IsRequired();
 
         builder.Property(o => o.AppUserId)
@@ -26,11 +26,11 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasOne(o => o.DeliveryMethod)
             .WithMany()
             .HasForeignKey(o => o.DeliveryMethodId);
-        
+
         builder.Property(o => o.OrderStatus)
             .HasConversion(
-                status => status.ToString(), 
-                status => (OrderStatus)Enum.Parse(typeof(OrderStatus), status)) 
+                status => status.ToString(),
+                status => (OrderStatus)Enum.Parse(typeof(OrderStatus), status))
             .HasMaxLength(50)
             .HasColumnName("OrderStatus");
         

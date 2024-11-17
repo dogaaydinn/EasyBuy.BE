@@ -8,9 +8,9 @@ public class ProductDescriptionConfiguration : IEntityTypeConfiguration<ProductD
 {
     public void Configure(EntityTypeBuilder<ProductDescription> builder)
     {
-        builder.Property(p => p.Value)
-            .HasColumnName("ProductDescription")  
-            .IsRequired()  
-            .HasMaxLength(500);  
+        builder.Property(p => p.Description) 
+            .HasColumnName("ProductDescription") 
+            .IsRequired() 
+            .HasMaxLength(500); 
     }
 }

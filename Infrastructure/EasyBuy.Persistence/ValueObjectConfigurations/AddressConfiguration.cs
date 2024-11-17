@@ -1,7 +1,6 @@
 using EasyBuy.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Address = EasyBuy.Domain.Primitives.Address;
 
 namespace EasyBuy.Persistence.ValueObjectConfigurations;
 
@@ -9,18 +8,27 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
 {
     public void Configure(EntityTypeBuilder<Address> builder)
     {
-        builder.OwnsOne(a => a.Street, sa =>
+        builder.Property(a => a.Street)
+            .HasColumnName("StreetName")
+            .IsRequired()
+            .HasMaxLength(100); 
+        
+        builder.Property(a => a.City)
+            .HasColumnName("CityName")
+            .IsRequired()
+            .HasMaxLength(100); 
+        
+        builder.Property(a => a.State)
+            .HasColumnName("StateName")
+            .IsRequired()
+            .HasMaxLength(100);
+        
+        builder.OwnsOne(a => a.PostalCode, postalCode =>
         {
-            sa.Property<string>(s => s.Name).HasColumnName("StreetName").IsRequired();
-            sa.Property<int>(s => s.Number).HasColumnName("StreetNumber").IsRequired();
+            postalCode.Property(pc => pc.Code)
+                .HasColumnName("PostalCode")
+                .IsRequired()
+                .HasMaxLength(20); 
         });
-
-        builder.OwnsOne(a => a.City, sa =>
-        {
-            sa.Property<string>(s => s.Name).HasColumnName("CityName").IsRequired();
-        });
-            
-        builder.Property(a => a.ZipCode).HasColumnName("ZipCode").IsRequired();
-        builder.Property(a => a.PostalCode).HasColumnName("PostalCode").IsRequired();
     }
 }

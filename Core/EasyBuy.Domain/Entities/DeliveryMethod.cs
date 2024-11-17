@@ -2,9 +2,10 @@ using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class DeliveryMethod : BaseEntity<int>
+public class DeliveryMethod : Entity<Guid>
 {
-    public DeliveryMethod(string shortName, string description, decimal price, TimeSpan deliveryTime)
+    public DeliveryMethod(string shortName, string description, decimal price, TimeSpan deliveryTime, Guid id) :
+        base(id)
     {
         if (string.IsNullOrWhiteSpace(shortName))
             throw new ArgumentException("Short name cannot be empty.", nameof(shortName));
@@ -23,12 +24,12 @@ public class DeliveryMethod : BaseEntity<int>
         Price = price;
         DeliveryTime = deliveryTime;
     }
-        
+
     public string ShortName { get; }
     public string Description { get; }
     public decimal Price { get; }
     public TimeSpan DeliveryTime { get; }
-        
+
     public override string ToString()
     {
         return $"{ShortName} - {Description}, Price: {Price:C}, Delivery Time: {DeliveryTime}";

@@ -1,19 +1,18 @@
+using EasyBuy.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EasyBuy.Persistence.ValueObjectConfigurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class EmailConfiguration : IEntityTypeConfiguration<Email>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<Email> builder)
     {
-        builder.OwnsOne(u => u.Email, email =>
-        {
-            email.Property(e => e.Value)
-                .HasColumnName("Email")
-                .IsRequired()
-                .HasMaxLength(150);
-        });
-        
+        builder.Property(e => e.Value)  
+            .HasColumnName("Email")
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.HasCheckConstraint("CK_Email", "Email LIKE '%_@__%.__%'");
     }
 }

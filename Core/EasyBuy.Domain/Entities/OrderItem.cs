@@ -2,9 +2,10 @@ using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class OrderItem : BaseEntity<int>
+public class OrderItem : Entity<Guid>
 {
-    public OrderItem(int orderId, int productId, decimal price, int quantity, Order order, Product product)
+    public OrderItem(Guid orderId, Guid productId, decimal price, int quantity, Order order, Product product,
+        Guid id) : base(id)
     {
         if (price < 0)
             throw new ArgumentException("Price cannot be negative", nameof(price));
@@ -19,19 +20,16 @@ public class OrderItem : BaseEntity<int>
         Order = order ?? throw new ArgumentNullException(nameof(order), "Order cannot be null.");
         Product = product ?? throw new ArgumentNullException(nameof(product), "Product cannot be null.");
     }
-    
-    public int OrderId { get; }
-    public int ProductId { get; }
-    public Order Order { get; private set; }
-    public Product Product { get; private set; } 
-    public decimal Price { get; private set; } 
+
+    public Guid OrderId { get; }
+    public Guid ProductId { get; }
+    public Order Order { get; } // Made read-only
+    public Product Product { get; }
+    public decimal Price { get; }
     public int Quantity { get; }
 
-    private decimal GetTotalPrice()
-    {
-        return Price * Quantity;
-    }
-    
+    public decimal TotalPrice => Price * Quantity;
+
     public override bool Equals(object? obj)
     {
         return obj is OrderItem other &&
@@ -43,9 +41,9 @@ public class OrderItem : BaseEntity<int>
     {
         return HashCode.Combine(OrderId, ProductId);
     }
-    
+
     public override string ToString()
     {
-        return $"{Product.Name} (x{Quantity}) - {Price:C} each, Total: {GetTotalPrice():C}";
+        return $"{Product.Name} (x{Quantity}) - {Price:C} each, Total: {TotalPrice:C}";
     }
 }

@@ -10,14 +10,14 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
     {
         builder.Property(s => s.DiscountPercentage)
             .HasColumnName("DiscountPercentage")
-            .IsRequired();
+            .IsRequired(); 
 
         builder.Property(s => s.StartDate)
-            .HasColumnName("StartDate")
-            .IsRequired();
+            .HasColumnName("StartDate") 
+            .IsRequired(); 
 
         builder.Property(s => s.EndDate)
-            .HasColumnName("EndDate")
-            .IsRequired();
+            .HasColumnName("EndDate") 
+            .IsRequired(); 
     }
 }

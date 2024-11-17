@@ -1,8 +1,7 @@
+using System.Reflection;
 using EasyBuy.Domain.Entities;
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Primitives;
-using EasyBuy.Persistence.Configurations;
-using EasyBuy.Persistence.ValueObjectConfigurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyBuy.Persistence.Contexts;
@@ -23,45 +22,30 @@ public class EasyBuyDbContext : DbContext
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<BasketItem> BasketItems { get; set; }
     public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         
         ValueObjectConfigurations.ConfigureValueObjects(modelBuilder);
-        modelBuilder.ApplyConfiguration(new PhoneNumberConfiguration());
-        modelBuilder.ApplyConfiguration(new AppUserConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductBrandConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
-        modelBuilder.ApplyConfiguration(new BasketConfiguration());
-        modelBuilder.ApplyConfiguration(new BasketItemConfiguration());
-        modelBuilder.ApplyConfiguration(new DeliveryMethodConfiguration());
-
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyBuyDbContext).Assembly);
-        modelBuilder.Entity<YourMainEntity>()
-            .OwnsOne(e => e.Price, price =>
-            {
-                price.Property(p => p.Amount).HasColumnType("decimal(18,2)").IsRequired();
-                price.Property(p => p.Currency).HasMaxLength(3).IsRequired();
-            });
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (!typeof(BaseEntity<>).IsAssignableFrom(entityType.ClrType)) continue;
+
             var method = typeof(EasyBuyDbContext)
-                .GetMethod(nameof(SetSoftDeleteFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
                 ?.MakeGenericMethod(entityType.ClrType);
 
-            method?.Invoke(null, [modelBuilder]);
+            method?.Invoke(null, new object[] { modelBuilder });
         }
+    }
 
-        return;
-
-        void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class
-        {
-            modelBuilder.Entity<TEntity>().HasQueryFilter(e => EF.Property<bool>(e, "IsDeleted") == false);
-        }
+    private static void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+    {
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e => EF.Property<bool>(e, "IsDeleted") == false);
     }
 }

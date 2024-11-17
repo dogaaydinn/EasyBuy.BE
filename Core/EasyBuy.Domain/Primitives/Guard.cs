@@ -1,3 +1,5 @@
+using EasyBuy.Domain.ValueObjects;
+
 namespace EasyBuy.Domain.Primitives;
 
 public static class Guard
@@ -8,7 +10,7 @@ public static class Guard
             throw new ArgumentException($"{parameterName} cannot be null or empty.", parameterName);
         return value;
     }
-    
+
     public static void AgainstNegative(int value, string parameterName)
     {
         if (value < 0)
@@ -20,15 +22,13 @@ public static class Guard
         if (value < 0)
             throw new ArgumentOutOfRangeException(parameterName, "Value cannot be negative.");
     }
-    
+
     public static void AgainstOutOfRange<T>(T value, T min, T max, string parameterName) where T : IComparable<T>
     {
         if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
-        {
             throw new ArgumentOutOfRangeException(parameterName, $"The value must be between {min} and {max}.");
-        }
     }
-    
+
     public static void AgainstOutOfRange(decimal value, decimal min, decimal max, string parameterName)
     {
         if (min > max)
@@ -38,8 +38,21 @@ public static class Guard
             throw new ArgumentOutOfRangeException(parameterName, $"Value must be between {min} and {max}.");
     }
 
-    public static void AgainstNullOrWhiteSpace(string street, string streetName)
+    public static void AgainstNullOrWhiteSpace(string value, string parameterName)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException($"{parameterName} cannot be null or empty.", parameterName);
+    }
+
+    public static void AgainstNull(Email email, string emailName)
+    {
+        if (email == null)
+            throw new ArgumentNullException(emailName, "Email cannot be null.");
+    }
+
+    public static void AgainstNull(PhoneNumber phoneNumber, string phoneNumberName)
+    {
+        if (phoneNumber == null)
+            throw new ArgumentNullException(phoneNumberName, "PhoneNumber cannot be null.");
     }
 }

@@ -10,12 +10,12 @@ public class PhoneNumberConfiguration : IEntityTypeConfiguration<PhoneNumber>
     {
         builder.Property(p => p.CountryCode)
             .HasColumnName("CountryCode")
-            .IsRequired()
+            .IsRequired() 
             .HasMaxLength(5); 
-            
+
         builder.Property(p => p.Number)
             .HasColumnName("PhoneNumber")
-            .IsRequired()
+            .IsRequired() 
             .HasMaxLength(15); 
     }
 }

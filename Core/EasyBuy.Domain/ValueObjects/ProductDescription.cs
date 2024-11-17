@@ -2,39 +2,18 @@ using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.ValueObjects;
 
-public class ProductDescription(string value)
-    : LengthRestrictedValueObject(value, MaxLength), IEquatable<ProductDescription>
+public class ProductDescription : ValueObject
 {
-    private const int MaxLength = 500; 
-    
-    public bool Equals(ProductDescription? other)
+    public ProductDescription(string description)
     {
-        if (other is null) return false;
-        return Value == other.Value;
+        Guard.AgainstNullOrWhiteSpace(description, nameof(description));
+        Description = description;
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is ProductDescription other && Equals(other);
-    }
+    public string Description { get; }
 
-    public override int GetHashCode()
+    protected override IEnumerable<object> GetEqualityComponents()
     {
-        return Value?.GetHashCode() ?? 0;
-    }
-
-    public static bool operator ==(ProductDescription left, ProductDescription right)
-    {
-        return left?.Equals(right) ?? ReferenceEquals(right, null);
-    }
-
-    public static bool operator !=(ProductDescription left, ProductDescription right)
-    {
-        return !(left == right);
-    }
-
-    public override string ToString()
-    {
-        return Value;
+        yield return Description;
     }
 }

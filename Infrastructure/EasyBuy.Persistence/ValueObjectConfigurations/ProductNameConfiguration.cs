@@ -8,9 +8,9 @@ public class ProductNameConfiguration : IEntityTypeConfiguration<ProductName>
 {
     public void Configure(EntityTypeBuilder<ProductName> builder)
     {
-        builder.Property(p => p.Value)
+        builder.Property(p => p.Value) 
             .HasColumnName("ProductName") 
-            .IsRequired()  
+            .IsRequired() 
             .HasMaxLength(100); 
     }
 }

@@ -2,30 +2,23 @@ namespace EasyBuy.Domain.Primitives;
 
 public abstract class BaseEntity<TId>
 {
-    protected BaseEntity()
-    {
-        CreatedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
-        IsDeleted = false;
-    }
-
-    public DateTimeOffset CreatedAt { get; }
-    public DateTimeOffset UpdatedAt { get; private set; }
-    public bool IsDeleted { get; private set; }
+    public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public bool IsDeleted { get; private set; } = false;
 
     public void MarkAsDeleted()
     {
         IsDeleted = true;
-        UpdateTimestamp(); 
+        UpdateTimestamp();
     }
 
     public void Restore()
     {
         IsDeleted = false;
-        UpdateTimestamp(); 
+        UpdateTimestamp();
     }
 
-    public void UpdateTimestamp()
+    private void UpdateTimestamp()
     {
         UpdatedAt = DateTimeOffset.UtcNow;
     }

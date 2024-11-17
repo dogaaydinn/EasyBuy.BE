@@ -1,62 +1,43 @@
 using EasyBuy.Domain.Primitives;
+using EasyBuy.Domain.ValueObjects;
 
 namespace EasyBuy.Domain.Entities;
 
-public class Product : BaseEntity<int>
+public class Product(
+    ProductName name,
+    Guid productTypeId,
+    Guid productBrandId,
+    decimal price,
+    Guid id,
+    ProductDescription description,
+    Quantity quantity,
+    Sale sale,
+    ProductType productType,
+    ProductBrand productBrand)
+    : Entity<Guid>(id)
 {
-    public Product(string name, string description, decimal price, int productTypeId,
-        int productBrandId, ProductType productType, ProductBrand productBrand, List<Order> orders)
-    {
-        if (string.IsNullOrWhiteSpace(name)) 
-            throw new ArgumentException("Product name cannot be empty", nameof(name));
-        if (string.IsNullOrWhiteSpace(description)) 
-            throw new ArgumentException("Product description cannot be empty", nameof(description));
-        if (price < 0) 
-            throw new ArgumentException("Price cannot be negative", nameof(price));
+    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public ProductType ProductType { get; set; } = productType;
+    public ProductBrand ProductBrand { get; set; } = productBrand;
+    public ProductName Name { get; } = name ?? throw new ArgumentNullException(nameof(name), "Product name cannot be null.");
+    public Guid ProductTypeId { get; } = productTypeId != Guid.Empty
+        ? productTypeId
+        : throw new ArgumentException("Invalid ProductTypeId", nameof(productTypeId));
 
-        Name = name;
-        Description = description;
-        Price = price;
-        ProductTypeId = productTypeId;
-        ProductBrandId = productBrandId;
-        ProductType = productType ?? throw new ArgumentNullException(nameof(productType), "Product type cannot be null.");
-        ProductBrand = productBrand ?? throw new ArgumentNullException(nameof(productBrand), "Product brand cannot be null.");
-        _orders = orders;
-    }
+    public Guid ProductBrandId { get; } = productBrandId != Guid.Empty
+        ? productBrandId
+        : throw new ArgumentException("Invalid ProductBrandId", nameof(productBrandId));
 
-    public string Name { get; }
-    public string Description { get; }
-    public decimal Price { get; }
-    public ProductType ProductType { get; private set; }
-    public int ProductTypeId { get; private set; }
-    public ProductBrand ProductBrand { get; private set; }
-    public int ProductBrandId { get; private set; }
-    private readonly List<Order> _orders;
-    public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
-        
-    public decimal GetPriceAfterDiscount(decimal discountPercentage)
-    {
-        if (discountPercentage is < 0 or > 100)
-            throw new ArgumentOutOfRangeException(nameof(discountPercentage),
-                "Discount percentage must be between 0 and 100.");
+    public decimal Price { get; } = price >= 0 ? price : throw new ArgumentException("Price must be non-negative", nameof(price));
+    public string? PictureUrl { get; set; }
+    public Sale Sale { get; private set; } = sale ?? throw new ArgumentNullException(nameof(sale));
+    public ICollection<ProductOrder> ProductOrders { get; set; } = new List<ProductOrder>();
 
-        return Price - (Price * discountPercentage / 100);
-    }
-        
-    public void AddOrder(Order order)
-    {
-        if (order == null) throw new ArgumentNullException(nameof(order), "Order cannot be null.");
-        _orders.Add(order);
-    }
+    public ProductDescription Description { get; } = description ?? throw new ArgumentNullException(nameof(description));
+    public Quantity Quantity { get; } = quantity ?? throw new ArgumentNullException(nameof(quantity));
 
-    public void RemoveOrder(Order order)
-    {
-        if (order == null) throw new ArgumentNullException(nameof(order), "Order cannot be null.");
-        _orders.Remove(order);
-    }
-        
     public override string ToString()
     {
-        return $"{Name} - {Description} - {Price:C} - Type: {ProductType.Name} - Brand: {ProductBrand.Name}";
+        return $"{Name} - {Price:C}";
     }
 }

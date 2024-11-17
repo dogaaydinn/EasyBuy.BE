@@ -1,39 +1,17 @@
-using EasyBuy.Domain.Primitives;
-
 namespace EasyBuy.Domain.ValueObjects;
 
-public class ProductName(string value) : LengthRestrictedValueObject(value, MaxLength), IEquatable<ProductName>
+public class ProductName
 {
-    private const int MaxLength = 100;
-
-    public bool Equals(ProductName? other)
+    public ProductName(string value)
     {
-        if (other is null) return false;
-        return Value == other.Value;
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Name cannot be empty or null.", nameof(value));
+
+        if (value.Length > 100)
+            throw new ArgumentException("Name cannot exceed 100 characters.", nameof(value));
+
+        Value = value.Trim();
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is ProductName other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return Value?.GetHashCode() ?? 0;
-    }
-
-    public static bool operator ==(ProductName left, ProductName right)
-    {
-        return left?.Equals(right) ?? ReferenceEquals(right, null);
-    }
-
-    public static bool operator !=(ProductName left, ProductName right)
-    {
-        return !(left == right);
-    }
-
-    public override string ToString()
-    {
-        return Value;
-    }
+    public string Value { get; }
 }

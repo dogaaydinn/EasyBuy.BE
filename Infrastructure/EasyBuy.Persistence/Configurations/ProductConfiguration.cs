@@ -17,10 +17,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Description)
             .HasMaxLength(500);
 
-        builder.Property(p => p.Price)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
-
         builder.Property(p => p.PictureUrl)
             .HasMaxLength(250);
 
@@ -34,31 +30,44 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(p => p.ProductBrandId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(p => p.Orders)
-            .WithMany(o => o.OrderItems.Select(oi => oi.Product))
-            .UsingEntity(j => j.ToTable("ProductOrders"));
-        
+        builder.HasMany(p => p.ProductOrders)
+            .WithOne()
+            .HasForeignKey(po => po.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.OwnsOne(p => p.Quantity, quantity =>
         {
             quantity.Property(q => q.Value)
                 .HasColumnName("Quantity")
-                .IsRequired()
-                .HasColumnType("int");
+                .IsRequired();
         });
 
         builder.OwnsOne(p => p.Description, description =>
         {
-            description.Property(d => d.Value)
-                .HasColumnName("ProductDescription")  
-                .IsRequired()  
-                .HasMaxLength(500);  
+            description.Property(d => d.Description)
+                .HasColumnName("ProductDescription")
+                .IsRequired()
+                .HasMaxLength(500);
         });
-        builder.OwnsOne(p => p.Name, name =>
+
+        builder.Property(p => p.Price)
+            .HasColumnName("Price")
+            .IsRequired()
+            .HasColumnType("decimal(18,2)");
+
+        builder.OwnsOne(p => p.Sale, s =>
         {
-            name.Property(n => n.Value)
-                .HasColumnName("ProductName")  
-                .IsRequired() 
-                .HasMaxLength(100); 
+            s.Property(s => s.DiscountPercentage)
+                .HasColumnName("DiscountPercentage")
+                .IsRequired();
+
+            s.Property(s => s.StartDate)
+                .HasColumnName("StartDate")
+                .IsRequired();
+
+            s.Property(s => s.EndDate)
+                .HasColumnName("EndDate")
+                .IsRequired();
         });
     }
 }

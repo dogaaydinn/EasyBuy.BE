@@ -6,7 +6,7 @@ public abstract class Entity<TId> : BaseEntity<TId>
     {
     }
 
-    protected Entity(TId id) : base()
+    protected Entity(TId id)
     {
         Id = id;
     }
@@ -15,10 +15,7 @@ public abstract class Entity<TId> : BaseEntity<TId>
 
     public override bool Equals(object? obj)
     {
-        if (obj is Entity<TId> entity)
-        {
-            return EqualityComparer<TId>.Default.Equals(Id, entity.Id);
-        }
+        if (obj is Entity<TId> entity) return EqualityComparer<TId>.Default.Equals(Id, entity.Id);
         return false;
     }
 

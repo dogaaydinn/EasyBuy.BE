@@ -1,24 +1,28 @@
+namespace EasyBuy.Domain.Primitives;
 
-namespace EasyBuy.Domain.Primitives
+public abstract class RangedValueObject<T> : ValueObject where T : IComparable<T>
 {
-    public abstract class RangedValueObject<T> : ValueObject where T : IComparable<T>
+    protected RangedValueObject(T value, T min, T max)
     {
-        public readonly T Value;
+        if (min.CompareTo(max) > 0)
+            throw new ArgumentException("Min value cannot be greater than max value.");
 
-        protected RangedValueObject(T value, T min, T max)
-        {
-            Guard.AgainstOutOfRange(value, min, max, nameof(value));
-            Value = value;
-        }
+        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
+            throw new ArgumentOutOfRangeException(nameof(value), $"Value must be between {min} and {max}.");
 
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
+        Value = value;
+        Min = min;
+        Max = max;
+    }
 
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+    public T Value { get; }
+    public T Min { get; }
+    public T Max { get; }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+        yield return Min;
+        yield return Max;
     }
 }
