@@ -8,6 +8,6 @@ public class ProductItemOrdered : BaseEntity
 {
     public Guid ProductId { get; }
     [StringLength(127)]
-    public string ProductName { get; }
-    public Price ProductPrice { get; }
+    public string ProductName { get; set; }
+    public Price ProductPrice { get; set; }
 }

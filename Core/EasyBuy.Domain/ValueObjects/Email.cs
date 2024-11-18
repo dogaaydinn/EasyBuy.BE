@@ -4,7 +4,7 @@ namespace EasyBuy.Domain.ValueObjects;
 
 public class Email : ValueObject
 {
-    public string Address { get; }
+    public string Address { get; set; }
         
     public string Value => Address; 
 

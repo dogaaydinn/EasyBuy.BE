@@ -5,24 +5,20 @@ namespace EasyBuy.Domain.Entities;
 
 public class Product : BaseEntity
 {
-    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-    public ProductType ProductType { get; set; } = productType;
-    public ProductBrand ProductBrand { get; set; } = productBrand;
-    public ProductName Name { get; } = name ?? throw new ArgumentNullException(nameof(name), "Product name cannot be null.");
-    public Guid ProductTypeId { get; } = productTypeId != Guid.Empty
-        ? productTypeId
-        : throw new ArgumentException("Invalid ProductTypeId", nameof(productTypeId));
+    public ICollection<OrderItem> OrderItems { get; set; } 
+    public ProductType ProductType { get; set; } 
+    public ProductBrand ProductBrand { get; set; } 
+    public ProductName Name { get; set; } 
+    public Guid ProductTypeId { get; } 
 
-    public Guid ProductBrandId { get; } = productBrandId != Guid.Empty
-        ? productBrandId
-        : throw new ArgumentException("Invalid ProductBrandId", nameof(productBrandId));
+    public Guid ProductBrandId { get; } 
 
-    public decimal Price { get; } = price >= 0 ? price : throw new ArgumentException("Price must be non-negative", nameof(price));
+    public decimal Price { get; set; } 
     public string? PictureUrl { get; set; }
-    public Sale Sale { get; private set; } = sale ?? throw new ArgumentNullException(nameof(sale));
-    public ICollection<ProductOrder> ProductOrders { get; set; } = new List<ProductOrder>();
+    public Sale Sale { get; set; } 
+    public ICollection<ProductOrder> ProductOrders { get; set; } 
 
-    public ProductDescription Description { get; } = description ?? throw new ArgumentNullException(nameof(description));
-    public Quantity Quantity { get; } = quantity ?? throw new ArgumentNullException(nameof(quantity));
+    public ProductDescription Description { get; set; }
+    public Quantity Quantity { get; set; } 
 
 }

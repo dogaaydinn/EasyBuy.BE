@@ -4,8 +4,8 @@ namespace EasyBuy.Domain.ValueObjects;
 
 public class ContactInfo : ValueObject
 {
-    public Email Email { get; }
-    public PhoneNumber? PhoneNumber { get; }
+    public Email Email { get; set; }
+    public PhoneNumber? PhoneNumber { get; set;}
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

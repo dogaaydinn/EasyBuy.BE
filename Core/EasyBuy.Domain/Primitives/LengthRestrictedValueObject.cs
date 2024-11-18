@@ -2,19 +2,7 @@ namespace EasyBuy.Domain.Primitives;
 
 public abstract class LengthRestrictedValueObject : IEquatable<LengthRestrictedValueObject>
 {
-    protected LengthRestrictedValueObject(string value, int maxLength)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(value));
-
-        if (value.Length > maxLength)
-            throw new ArgumentException($"Value cannot exceed {maxLength} characters. Provided value: '{value}'",
-                nameof(value));
-
-        Value = value;
-    }
-
-    public string Value { get; }
+    public string Value { get; set; }
 
     public bool Equals(LengthRestrictedValueObject? other)
     {

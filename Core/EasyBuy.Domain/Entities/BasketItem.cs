@@ -8,9 +8,9 @@ public class BasketItem : BaseEntity
     public Guid BasketId { get; }
     public Guid ProductId { get; }
     [Range(1, int.MaxValue)]
-    public int Quantity { get; }
+    public int Quantity { get; set; }
     [Range(0.01, double.MaxValue)]
-    public decimal Price { get; }
+    public decimal Price { get; set; }
 
     public Basket Basket { get; set; }
     public Product Product { get; set; }

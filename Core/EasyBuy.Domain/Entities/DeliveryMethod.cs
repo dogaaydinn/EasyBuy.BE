@@ -7,12 +7,12 @@ public class DeliveryMethod : BaseEntity
 {
    
    [StringLength(127)]
-    public string ShortName { get; }
+    public string ShortName { get; set; }
     [StringLength(255)]
-    public string Description { get; }
+    public string Description { get; set; }
     
     [DataType(DataType.Currency)]
-    public decimal Price { get; }
+    public decimal Price { get; set; }
     [DataType(DataType.Duration)]
-    public TimeSpan DeliveryTime { get; }
+    public TimeSpan DeliveryTime { get; set; }
 }

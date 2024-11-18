@@ -6,7 +6,7 @@ namespace EasyBuy.Domain.Entities;
 public class Basket : BaseEntity
 {
     public Guid AppUserId { get; }
-    public AppUser AppUser { get; private set; }
+    public AppUser AppUser { get; set; }
     public List<BasketItem> Items { get; }
     public IReadOnlyCollection<BasketItem> ItemsList => Items.AsReadOnly();
 
