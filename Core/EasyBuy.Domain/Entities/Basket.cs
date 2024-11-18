@@ -3,18 +3,8 @@ using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class Basket : Entity<Guid>
+public class Basket : BaseEntity
 {
-    public Basket(Guid appUserId, AppUser appUser, Guid id) : base(id)
-    {
-        if (appUserId == Guid.Empty)
-            throw new ArgumentException("AppUserId must be a valid GUID.", nameof(appUserId));
-
-        AppUserId = appUserId;
-        AppUser = appUser ?? throw new ArgumentNullException(nameof(appUser), "AppUser cannot be null.");
-        Items = new List<BasketItem>();
-    }
-
     public Guid AppUserId { get; }
     public AppUser AppUser { get; private set; }
     public List<BasketItem> Items { get; }

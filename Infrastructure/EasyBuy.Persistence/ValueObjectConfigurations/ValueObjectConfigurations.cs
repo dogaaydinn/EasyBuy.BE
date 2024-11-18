@@ -1,4 +1,3 @@
-using EasyBuy.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyBuy.Persistence.ValueObjectConfigurations;
@@ -17,16 +16,5 @@ public static class ValueObjectConfigurations
         modelBuilder.ApplyConfiguration(new QuantityConfiguration());
         modelBuilder.ApplyConfiguration(new PostalCodeConfiguration());
         modelBuilder.ApplyConfiguration(new ProductDescriptionConfiguration());
-            
-            
-        modelBuilder.Owned<Price>();
-        modelBuilder.Owned<Email>();
-        modelBuilder.Owned<PhoneNumber>();
-        modelBuilder.Owned<Sale>();
-        modelBuilder.Owned<ProductName>();
-        modelBuilder.Owned<Quantity>();
-        modelBuilder.Owned<PostalCode>();
-        modelBuilder.Owned<ProductDescription>();
-            
     }
 }

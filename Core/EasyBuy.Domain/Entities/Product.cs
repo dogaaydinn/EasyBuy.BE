@@ -3,18 +3,7 @@ using EasyBuy.Domain.ValueObjects;
 
 namespace EasyBuy.Domain.Entities;
 
-public class Product(
-    ProductName name,
-    Guid productTypeId,
-    Guid productBrandId,
-    decimal price,
-    Guid id,
-    ProductDescription description,
-    Quantity quantity,
-    Sale sale,
-    ProductType productType,
-    ProductBrand productBrand)
-    : Entity<Guid>(id)
+public class Product : BaseEntity
 {
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ProductType ProductType { get; set; } = productType;
@@ -36,8 +25,4 @@ public class Product(
     public ProductDescription Description { get; } = description ?? throw new ArgumentNullException(nameof(description));
     public Quantity Quantity { get; } = quantity ?? throw new ArgumentNullException(nameof(quantity));
 
-    public override string ToString()
-    {
-        return $"{Name} - {Price:C}";
-    }
 }

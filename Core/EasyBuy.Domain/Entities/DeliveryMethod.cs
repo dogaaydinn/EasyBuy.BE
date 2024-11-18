@@ -1,37 +1,18 @@
+using System.ComponentModel.DataAnnotations;
 using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class DeliveryMethod : Entity<Guid>
+public class DeliveryMethod : BaseEntity
 {
-    public DeliveryMethod(string shortName, string description, decimal price, TimeSpan deliveryTime, Guid id) :
-        base(id)
-    {
-        if (string.IsNullOrWhiteSpace(shortName))
-            throw new ArgumentException("Short name cannot be empty.", nameof(shortName));
-
-        if (string.IsNullOrWhiteSpace(description))
-            throw new ArgumentException("Description cannot be empty.", nameof(description));
-
-        if (price < 0)
-            throw new ArgumentException("Price cannot be negative.", nameof(price));
-
-        if (deliveryTime <= TimeSpan.Zero)
-            throw new ArgumentException("Delivery time must be a positive value.", nameof(deliveryTime));
-
-        ShortName = shortName;
-        Description = description;
-        Price = price;
-        DeliveryTime = deliveryTime;
-    }
-
+   
+   [StringLength(127)]
     public string ShortName { get; }
+    [StringLength(255)]
     public string Description { get; }
+    
+    [DataType(DataType.Currency)]
     public decimal Price { get; }
+    [DataType(DataType.Duration)]
     public TimeSpan DeliveryTime { get; }
-
-    public override string ToString()
-    {
-        return $"{ShortName} - {Description}, Price: {Price:C}, Delivery Time: {DeliveryTime}";
-    }
 }

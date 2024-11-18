@@ -1,34 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using EasyBuy.Domain.Primitives;
 
 namespace EasyBuy.Domain.Entities;
 
-public class BasketItem : Entity<Guid>
+public class BasketItem : BaseEntity
 {
-    public BasketItem(Guid basketId, Guid productId, int quantity, decimal price, Guid id, Basket basket, Product product) : base(id)
-    {
-        if (basketId == Guid.Empty)
-            throw new ArgumentException("Basket ID must be a valid GUID.", nameof(basketId));
-
-        if (productId == Guid.Empty)
-            throw new ArgumentException("Product ID must be a valid GUID.", nameof(productId));
-
-        if (quantity <= 0)
-            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
-
-        if (price <= 0)
-            throw new ArgumentException("Price must be greater than zero.", nameof(price));
-
-        BasketId = basketId;
-        ProductId = productId;
-        Quantity = quantity;
-        Price = price;
-        Basket = basket;
-        Product = product;
-    }
-
     public Guid BasketId { get; }
     public Guid ProductId { get; }
+    [Range(1, int.MaxValue)]
     public int Quantity { get; }
+    [Range(0.01, double.MaxValue)]
     public decimal Price { get; }
 
     public Basket Basket { get; set; }
