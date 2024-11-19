@@ -4,10 +4,10 @@ namespace EasyBuy.Domain.ValueObjects;
 
 public class Address : ValueObject
 {
-    public string Street { get; set; }
-    public string City { get; set; }
-    public string State { get; set; }
-    public PostalCode PostalCode { get; set; }
+    public required string Street { get; set; }
+    public required string City { get; set; }
+    public required string State { get; set; }
+    public required string PostalCode { get; set; }
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

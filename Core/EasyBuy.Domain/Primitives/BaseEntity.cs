@@ -1,20 +1,32 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
 namespace EasyBuy.Domain.Primitives;
 
 public abstract class BaseEntity
 {
-    public Guid Id { get; } = Guid.NewGuid();
-    public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
-    public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
-    public bool IsDeleted { get; private set; } = false;
-
-    public void MarkAsDeleted()
+    [Key]
+    public Guid Id => Guid.NewGuid();
+    public DateTimeOffset CreatedAt { get;}
+    public DateTimeOffset UpdatedAt { get; private set; }
+    public bool IsDeleted { get; private set; }
+    
+    protected BaseEntity()
     {
+        CreatedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
+        IsDeleted = false;
+    }
+    public virtual void MarkAsDeleted()
+    {
+        if (IsDeleted) return;
         IsDeleted = true;
         UpdateTimestamp();
     }
-
-    public void Restore()
+    
+    public virtual void Restore()
     {
+        if (!IsDeleted) return;
         IsDeleted = false;
         UpdateTimestamp();
     }
@@ -31,15 +43,11 @@ public abstract class BaseEntity
     
     public override bool Equals(object? obj)
     {
-        if (obj == null || obj.GetType() != GetType())
-            return false;
-
-        var other = (BaseEntity)obj;
-        return Id == other.Id;
+        return obj is BaseEntity other && Id == other.Id;
     }
     
     public override int GetHashCode()
     {
-        return Id.GetHashCode();
+        return HashCode.Combine(Id);
     }
 }

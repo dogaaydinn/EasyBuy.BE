@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace EasyBuy.Persistence.Configurations;
 
 public class BaseEntityConfiguration<TEntity, TId> : IEntityTypeConfiguration<TEntity>
-    where TEntity : BaseEntity<TId>
+    where TEntity : BaseEntity
 {
     public void Configure(EntityTypeBuilder<TEntity> builder)
     {

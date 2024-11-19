@@ -7,22 +7,11 @@ namespace EasyBuy.Domain.Entities;
 
 public class Order : BaseEntity
 {
-
-    public ICollection<ProductOrder> ProductOrders { get; set; }
-
-    public int AppUserId { get; }
-    public AppUser AppUser { get; set; }
-
-    public Guid DeliveryMethodId { get; set; }
-    public DeliveryMethod DeliveryMethod { get; set; }
-
-    public OrderStatus OrderStatus { get; set; }
-
-    public DateTime OrderDate { get; set; }
-
     public decimal Total { get; set; }
-    public Sale Sale { get; set; }
-
-    public List<OrderItem> OrderItems { get; }
+    public required Delivery Delivery { get; set; }
+    public required OrderStatus OrderStatus { get; set; } // Value Object
+    public DateTime OrderDate { get; set; } // Value Object
+    public required AppUser AppUser { get; set; } // Value Object
     
+    public ICollection<Product> Products { get; set; } = new List<Product>(); // Value Object
 }

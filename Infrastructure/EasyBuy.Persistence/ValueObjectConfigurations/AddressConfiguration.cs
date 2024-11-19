@@ -23,12 +23,9 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
             .IsRequired()
             .HasMaxLength(100);
         
-        builder.OwnsOne(a => a.PostalCode, postalCode =>
-        {
-            postalCode.Property(pc => pc.Code)
-                .HasColumnName("PostalCode")
-                .IsRequired()
-                .HasMaxLength(20); 
-        });
+        builder.Property(a => a.PostalCode)
+            .HasColumnName("PostalCode")
+            .IsRequired()
+            .HasMaxLength(20);
     }
 }

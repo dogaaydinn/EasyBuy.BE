@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EasyBuy.Persistence.Configurations;
 
-public class DeliveryMethodConfiguration : IEntityTypeConfiguration<DeliveryMethod>
+public class DeliveryMethodConfiguration : IEntityTypeConfiguration<Delivery>
 {
-    public void Configure(EntityTypeBuilder<DeliveryMethod> builder)
+    public void Configure(EntityTypeBuilder<Delivery> builder)
     {
         builder.HasKey(dm => dm.Id);
 
