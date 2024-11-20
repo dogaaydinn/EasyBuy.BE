@@ -6,7 +6,7 @@ namespace EasyBuy.Domain.Primitives;
 public abstract class BaseEntity
 {
     [Key]
-    public Guid Id => Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedAt { get;}
     public DateTimeOffset UpdatedAt { get; private set; }
     public bool IsDeleted { get; private set; }

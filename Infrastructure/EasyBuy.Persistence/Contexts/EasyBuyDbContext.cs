@@ -20,26 +20,31 @@ public class EasyBuyDbContext : DbContext
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<BasketItem> BasketItems { get; set; }
     public DbSet<Delivery> Deliveries { get; set; }
-    public DbSet<Address> Addresses { get; set; }
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyBuyDbContext).Assembly);
 
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyBuyDbContext).Assembly);
+        
+        var entityTypes = modelBuilder.Model.GetEntityTypes().ToList();
+
+        foreach (var entityType in entityTypes)
         {
             if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType)) continue;
-
+            
             var method = typeof(EasyBuyDbContext)
                 .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
                 ?.MakeGenericMethod(entityType.ClrType);
 
-            method?.Invoke(null, [modelBuilder]);
+            method?.Invoke(null, new object[] { modelBuilder });
+            
+            modelBuilder.Entity(entityType.ClrType)
+                .HasKey(nameof(BaseEntity.Id));
         }
     }
+
 
     private static void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class
     {
