@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using EasyBuy.Domain.Enums;
 using EasyBuy.Domain.Primitives;
-using EasyBuy.Domain.ValueObjects;
 
 namespace EasyBuy.Domain.Entities;
 
@@ -14,7 +13,7 @@ public class Product : BaseEntity
     public string ProductBrand { get; set; } 
     public required string Name { get; set; } 
     public bool OnSale { get; set; }
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     public int Quantity { get; set; }
     public ICollection<Order> Orders { get; set; } = new List<Order>(); 
 }

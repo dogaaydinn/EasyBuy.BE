@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 
 namespace EasyBuy.Domain.Primitives;
 
@@ -9,7 +8,7 @@ public abstract class BaseEntity
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedAt { get;}
     public DateTimeOffset UpdatedAt { get; private set; }
-    public bool IsDeleted { get; private set; }
+    public bool IsDeleted { get; set; }
     
     protected BaseEntity()
     {

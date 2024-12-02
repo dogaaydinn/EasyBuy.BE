@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using EasyBuy.Domain.Primitives;
-using EasyBuy.Domain.ValueObjects;
 
 namespace EasyBuy.Domain.Entities;
 

@@ -1,7 +1,6 @@
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Enums;
 using EasyBuy.Domain.Primitives;
-using EasyBuy.Domain.ValueObjects;
 
 namespace EasyBuy.Domain.Entities;
 
