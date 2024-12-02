@@ -9,7 +9,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<EasyBuyDbC
     public EasyBuyDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<EasyBuyDbContext>();
-        optionsBuilder.UseNpgsql("User ID=postgres;Password=da154679;Host=localhost;Port=5432;Database=EasyBuyAPIDb;");
+        optionsBuilder.UseNpgsql("Password=*******;Host=localhost;Port=5432;Database=postgres;");
 
         return new EasyBuyDbContext(optionsBuilder.Options);
     }
