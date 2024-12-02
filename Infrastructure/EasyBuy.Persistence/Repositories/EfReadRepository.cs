@@ -1,15 +1,17 @@
 using System.Linq.Expressions;
-using EasyBuy.Application.Repositories;
+using EasyBuy.Application;
 using EasyBuy.Domain.Primitives;
 using EasyBuy.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyBuy.Persistence.Repositories;
 
-public class ReadRepository<T>(EasyBuyDbContext context) : IReadRepository<T>
+public class EfReadRepository<T>(EasyBuyDbContext context) : IReadRepository<T>
     where T : BaseEntity
 {
-    public DbSet<T> DbSet => context.Set<T>();
+    
+    public DbSet<T> DbSet { get; set; } = context.Set<T>();
+
     public IQueryable<T?> Query => DbSet;
 
     public IEnumerable<T?> GetAll()
