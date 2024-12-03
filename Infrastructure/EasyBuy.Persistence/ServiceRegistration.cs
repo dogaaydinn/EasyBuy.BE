@@ -1,9 +1,7 @@
-using EasyBuy.Application;
 using EasyBuy.Application.Customer;
 using EasyBuy.Application.Order;
 using EasyBuy.Application.Product;
 using EasyBuy.Persistence.Contexts;
-using EasyBuy.Persistence.Repositories;
 using EasyBuy.Persistence.Repositories.Customer;
 using EasyBuy.Persistence.Repositories.Order;
 using EasyBuy.Persistence.Repositories.Product;
