@@ -25,4 +25,9 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\Storage\AWS\" />
+      <Folder Include="Services\Storage\Azure\" />
+    </ItemGroup>
+
 </Project>

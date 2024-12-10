@@ -15,8 +15,7 @@ public static class ServiceRegistration
     public static void AddPersistenceServices(this IServiceCollection services)
     {
         services.AddDbContext<EasyBuyDbContext>(options =>
-            options.UseNpgsql("Password=*******;Host=localhost;Port=5432;Database=postgres;"));
-
+            options.UseNpgsql("Password=123456;Host=localhost;Port=5432;Database=EasyBuyDB;Username=postgres;"));
 
         #region Repository Services
         
