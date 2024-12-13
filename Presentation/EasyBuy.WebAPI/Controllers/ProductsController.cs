@@ -25,20 +25,11 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task Get()
+    public ObjectResult Get()
     {
-        var entities = await _productWriteRepository.AddRangeAsync(
-        [
-            new Product
-            {
-                Name = "Product 1",
-                Price = 100,
-                ProductType = ProductType.Electronics,
-                Description = null
-            }
-        ]);
-
-        await _productWriteRepository.SaveChangesAsync();
+        var entities = _productReadRepository.GetAll();
+        
+        return Ok(entities);
     }
 
     [HttpGet("{id}")]
