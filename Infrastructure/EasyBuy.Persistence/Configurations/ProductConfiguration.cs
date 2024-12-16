@@ -19,10 +19,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.PictureUrl)
             .HasMaxLength(250);
-        
+
         builder.Property(p => p.Price)
             .HasColumnName("Price")
             .IsRequired()
             .HasColumnType("decimal(18,2)");
-        }
+    }
 }

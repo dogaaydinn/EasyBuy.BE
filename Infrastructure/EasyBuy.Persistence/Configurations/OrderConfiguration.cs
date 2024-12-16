@@ -22,7 +22,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 status => (OrderStatus)Enum.Parse(typeof(OrderStatus), status))
             .HasMaxLength(50)
             .HasColumnName("OrderStatus");
-        
+
         builder.HasOne(o => o.Delivery)
             .WithMany()
             .HasForeignKey(o => o.Id)

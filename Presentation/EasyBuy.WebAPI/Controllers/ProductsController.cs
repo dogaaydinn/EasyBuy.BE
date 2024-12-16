@@ -1,5 +1,6 @@
 using System.Net;
-using EasyBuy.Application.Product;
+using EasyBuy.Application.Repositories.File;
+using EasyBuy.Application.Repositories.Product;
 using EasyBuy.Application.ViewModels.Products;
 using EasyBuy.Domain.Entities;
 using EasyBuy.Domain.Enums;
@@ -11,24 +12,27 @@ namespace EasyBuy.WebAPI.Controllers;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
+    private readonly IWebHostEnvironment _hostingEnvironment;
+    private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
     private readonly IProductReadRepository _productReadRepository;
     private readonly IProductWriteRepository _productWriteRepository;
-    private readonly IWebHostEnvironment _hostingEnvironment;
 
     public ProductsController(IProductReadRepository productReadRepository,
         IProductWriteRepository productWriteRepository,
-        IWebHostEnvironment hostingEnvironment)
+        IWebHostEnvironment hostingEnvironment,
+        IProductImageFileWriteRepository productImageFileWriteRepository)
     {
         _productReadRepository = productReadRepository;
         _productWriteRepository = productWriteRepository;
         _hostingEnvironment = hostingEnvironment;
+        _productImageFileWriteRepository = productImageFileWriteRepository;
     }
 
     [HttpGet]
     public ObjectResult Get()
     {
         var entities = _productReadRepository.GetAll();
-        
+
         return Ok(entities);
     }
 
@@ -81,10 +85,7 @@ public class ProductsController : ControllerBase
     {
         var uploadPath = Path.Combine(_hostingEnvironment.WebRootPath, "images");
 
-        if (!Directory.Exists(uploadPath))
-        {
-            Directory.CreateDirectory(uploadPath);
-        }
+        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
 
         Random r = new();
 
@@ -92,11 +93,13 @@ public class ProductsController : ControllerBase
         {
             var fileName = Path.Combine(uploadPath, $"{r.NextDouble()}{Path.GetExtension(file.FileName)}");
 
-            await using FileStream fileStream = new(fileName, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
+            await using FileStream fileStream = new(fileName, FileMode.Create, FileAccess.Write, FileShare.None,
+                1024 * 1024, false);
 
             await file.CopyToAsync(fileStream);
             await fileStream.FlushAsync();
         }
+
         return Ok();
     }
 }

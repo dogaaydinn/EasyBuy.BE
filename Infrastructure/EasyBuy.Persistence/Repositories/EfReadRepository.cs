@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using EasyBuy.Application;
+using EasyBuy.Application.Repositories;
 using EasyBuy.Domain.Primitives;
 using EasyBuy.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,7 @@ public class EfReadRepository<T>(EasyBuyDbContext context) : IReadRepository<T>
     {
         var query = enableTracking ? Query : Query.AsNoTracking();
         return query.Where(predicate);
-}
+    }
 
     public IEnumerable<T> GetWhere(Expression<Func<T?, bool>> predicate, bool enableTracking = true)
     {
@@ -36,15 +36,14 @@ public class EfReadRepository<T>(EasyBuyDbContext context) : IReadRepository<T>
     public async Task<T> GetSingleAsync(Expression<Func<T?, bool>> predicate, bool enableTracking = true)
     {
         var query = DbSet.AsQueryable();
-        if (!enableTracking)
-        {
-            query = query.AsNoTracking();
-        }
+        if (!enableTracking) query = query.AsNoTracking();
         return await query.FirstOrDefaultAsync(predicate);
     }
 
     public async Task<T> GetByIdAsync(string id, bool enableTracking = true)
     {
-        return enableTracking ? await Query.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id)) : await Query.AsNoTracking().FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+        return enableTracking
+            ? await Query.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id))
+            : await Query.AsNoTracking().FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
     }
 }

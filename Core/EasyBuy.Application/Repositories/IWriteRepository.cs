@@ -1,6 +1,6 @@
 using EasyBuy.Domain.Primitives;
 
-namespace EasyBuy.Application;
+namespace EasyBuy.Application.Repositories;
 
 public interface IWriteRepository<T> : IRepository<T> where T : BaseEntity
 {
@@ -9,8 +9,7 @@ public interface IWriteRepository<T> : IRepository<T> where T : BaseEntity
     T Update(T entity);
     Task HardDeleteAsync(string id);
     Task SoftDeleteAsync(string id);
-    void HardDelete (T entity);
-    void SoftDelete (T entity);
+    void HardDelete(T entity);
+    void SoftDelete(T entity);
     Task<int> SaveChangesAsync();
-    
 }

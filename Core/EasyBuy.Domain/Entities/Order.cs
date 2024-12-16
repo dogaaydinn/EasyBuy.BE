@@ -11,6 +11,6 @@ public class Order : BaseEntity
     public required OrderStatus OrderStatus { get; set; } // Value Object
     public DateTime OrderDate { get; set; } // Value Object
     public required AppUser AppUser { get; set; } // Value Object
-    
+
     public ICollection<Product> Products { get; set; } = new List<Product>(); // Value Object
 }

@@ -1,6 +1,5 @@
-namespace EasyBuy.Application.Order;
+namespace EasyBuy.Application.Repositories.Order;
 
 public interface IOrderReadRepository : IReadRepository<Domain.Entities.Order>
 {
-    
 }

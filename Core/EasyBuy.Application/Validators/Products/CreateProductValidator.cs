@@ -28,6 +28,5 @@ public abstract class CreateProductValidator : AbstractValidator<VmCreateProduct
             .WithMessage("Stock is required")
             .Must(s => s >= 0)
             .WithMessage("Stock must be greater than or equal to 0");
-        
     }
 }
