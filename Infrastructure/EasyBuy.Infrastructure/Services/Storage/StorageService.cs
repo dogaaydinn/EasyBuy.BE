@@ -7,10 +7,9 @@ public class StorageService : IStorageService
 {
     private readonly IStorage _storage;
 
-    public StorageService(IStorage storage, string strorageName)
+    public StorageService(IStorage storage)
     {
         _storage = storage;
-        StrorageName = strorageName;
     }
 
     public string StorageName => _storage.GetType().Name;
@@ -35,11 +34,6 @@ public class StorageService : IStorageService
         return await _storage.HasFileAsync(path, fileName);
     }
 
-    public bool FileExists(string directoryPath, string fileName)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<IEnumerable<(string Folder, string Name)>> UploadFilesAsync(string path,
         IFormFileCollection files, bool useGuid = true)
     {
@@ -47,4 +41,9 @@ public class StorageService : IStorageService
     }
 
     public string StrorageName { get; }
+
+    public bool FileExists(string directoryPath, string fileName)
+    {
+        throw new NotImplementedException();
+    }
 }

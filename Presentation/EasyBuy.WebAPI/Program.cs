@@ -1,4 +1,6 @@
 using EasyBuy.Application.Validators.Products;
+using EasyBuy.Infrastructure;
+using EasyBuy.Infrastructure.Services.Storage.Azure;
 using EasyBuy.Persistence;
 using FluentValidation.AspNetCore;
 
@@ -7,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
-builder.Services.AddStorage<LocalStorage>();
+builder.Services.AddStorage<AzureStorage>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader()));
@@ -37,4 +39,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

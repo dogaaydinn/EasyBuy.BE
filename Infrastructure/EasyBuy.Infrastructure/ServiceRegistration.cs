@@ -1,4 +1,5 @@
 using EasyBuy.Application.Abstractions.Storage;
+using EasyBuy.Application.Abstractions.Storage.Azure;
 using EasyBuy.Application.Abstractions.Storage.Local;
 using EasyBuy.Infrastructure.Enums;
 using EasyBuy.Infrastructure.Services.Storage;
@@ -14,25 +15,27 @@ public static class ServiceRegistration
     {
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<ILocalStorage, LocalStorage>();
+        services.AddScoped<IAzureStorage, AzureStorage>();
     }
 
-    public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorageService
+    public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorage
     {
-        serviceCollection.AddScoped<IStorageService, T>();
+        serviceCollection.AddScoped<IStorage, T>();
     }
 
+    // This is an alternative way to register the storage services
     public static void AddStorage(this IServiceCollection services, StorageType storageType)
     {
         switch (storageType)
         {
             case StorageType.Local:
-                services.AddScoped<IStorageService, LocalStorage>();
+                services.AddScoped<IStorage, LocalStorage>();
                 break;
             case StorageType.Azure:
-                services.AddScoped<IStorageService, AzureStorage>(); 
+                services.AddScoped<IStorage, AzureStorage>();
                 break;
             default:
-                services.AddScoped<IStorageService, StorageService>(); 
+                services.AddScoped<IStorage, StorageService>();
                 break;
         }
     }

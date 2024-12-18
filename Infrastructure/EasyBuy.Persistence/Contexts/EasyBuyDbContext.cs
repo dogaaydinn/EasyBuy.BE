@@ -4,6 +4,7 @@ using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Primitives;
 using EasyBuy.Persistence.Constants;
 using Microsoft.EntityFrameworkCore;
+using File = EasyBuy.Domain.Entities.File;
 
 namespace EasyBuy.Persistence.Contexts;
 
@@ -20,6 +21,7 @@ public class EasyBuyDbContext : DbContext
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<BasketItem> BasketItems { get; set; }
     public DbSet<Delivery> Deliveries { get; set; }
+    public DbSet<File> Files { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,6 +66,7 @@ public class EasyBuyDbContext : DbContext
     }
 
     #region interceptors
+
     public override async Task<int> SaveChangesAsync(CancellationToken token = default)
     {
         OnBeforeSaveChanges();
@@ -88,7 +91,7 @@ public class EasyBuyDbContext : DbContext
                 entityEntry.Property(CommonShadowProperties.CreatedDate).CurrentValue = DateTime.UtcNow;
 
             entityEntry.Property(CommonShadowProperties.ModifiedDate).CurrentValue = DateTime.UtcNow;
-            
+
             if (entityEntry.Property("IsDeleted").CurrentValue is not bool isDeleted || !isDeleted)
                 continue;
 

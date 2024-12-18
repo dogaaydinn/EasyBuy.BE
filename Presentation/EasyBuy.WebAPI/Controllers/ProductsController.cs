@@ -1,4 +1,5 @@
 using System.Net;
+using EasyBuy.Application.Abstractions.Storage;
 using EasyBuy.Application.Repositories.File;
 using EasyBuy.Application.Repositories.Product;
 using EasyBuy.Application.ViewModels.Products;
@@ -16,16 +17,19 @@ public class ProductsController : ControllerBase
     private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
     private readonly IProductReadRepository _productReadRepository;
     private readonly IProductWriteRepository _productWriteRepository;
+    private readonly IStorageService _storageService;
 
     public ProductsController(IProductReadRepository productReadRepository,
         IProductWriteRepository productWriteRepository,
         IWebHostEnvironment hostingEnvironment,
-        IProductImageFileWriteRepository productImageFileWriteRepository)
+        IProductImageFileWriteRepository productImageFileWriteRepository,
+        IStorageService storageService)
     {
         _productReadRepository = productReadRepository;
         _productWriteRepository = productWriteRepository;
         _hostingEnvironment = hostingEnvironment;
         _productImageFileWriteRepository = productImageFileWriteRepository;
+        _storageService = storageService;
     }
 
     [HttpGet]
@@ -81,25 +85,11 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("[action]")]
-    public async Task<IActionResult> UploadImage()
+    public async Task<IActionResult> UploadImage(IFormFileCollection files)
     {
         var uploadPath = Path.Combine(_hostingEnvironment.WebRootPath, "images");
 
-        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-        Random r = new();
-
-        foreach (var file in Request.Form.Files)
-        {
-            var fileName = Path.Combine(uploadPath, $"{r.NextDouble()}{Path.GetExtension(file.FileName)}");
-
-            await using FileStream fileStream = new(fileName, FileMode.Create, FileAccess.Write, FileShare.None,
-                1024 * 1024, false);
-
-            await file.CopyToAsync(fileStream);
-            await fileStream.FlushAsync();
-        }
-
+        await _storageService.UploadFilesAsync("mydoga", files);
         return Ok();
     }
 }
