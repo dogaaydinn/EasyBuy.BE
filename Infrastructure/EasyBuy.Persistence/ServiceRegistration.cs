@@ -8,13 +8,15 @@ using EasyBuy.Persistence.Repositories.Files;
 using EasyBuy.Persistence.Repositories.Orders;
 using EasyBuy.Persistence.Repositories.Products;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyBuy.Persistence;
 
 public static class ServiceRegistration
 {
-    public static void AddPersistenceServices(this IServiceCollection services)
+    public static void AddPersistenceServices(this IServiceCollection services,
+        ConfigurationManager builderConfiguration)
     {
         services.AddDbContext<EasyBuyDbContext>(options =>
             options.UseNpgsql("Password=123456;Host=localhost;Port=5432;Database=EasyBuyDB;Username=postgres;"));
@@ -33,7 +35,7 @@ public static class ServiceRegistration
         services.AddScoped<IInvoiceFileWriteRepository, EfInvoiceFileWriteRepository>();
         services.AddScoped<IProductImageFileReadRepository, EfProductImageFileReadRepository>();
         services.AddScoped<IProductImageFileWriteRepository, EfProductImageFileWriteRepository>();
-
+        
         #endregion
     }
 }

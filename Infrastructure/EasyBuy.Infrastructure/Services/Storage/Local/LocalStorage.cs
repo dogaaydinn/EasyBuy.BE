@@ -28,7 +28,7 @@ public class LocalStorage : Storage, ILocalStorage
         var fileName = await Task.FromResult(useGuid ? $"{Guid.NewGuid()}_{file.FileName}" : file.FileName);
         var filePath = Path.Combine(uploadsFolder, fileName);
 
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        await using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(fileStream);
         }

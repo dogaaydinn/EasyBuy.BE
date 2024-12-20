@@ -52,7 +52,7 @@ public class AzureStorage : IStorage, IAzureStorage
 
         try
         {
-            using var stream = file.OpenReadStream();
+            await using var stream = file.OpenReadStream();
             await blobClient.UploadAsync(stream, true);
         }
         catch (Exception ex)
