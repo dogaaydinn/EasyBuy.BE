@@ -16,4 +16,5 @@ public class Product : BaseEntity
     public string? Description { get; set; }
     public int Quantity { get; set; }
     public ICollection<Order> Orders { get; set; } = new List<Order>();
+    public ICollection<ProductImageFile> ProductImageFiles { get; set; } = [];
 }

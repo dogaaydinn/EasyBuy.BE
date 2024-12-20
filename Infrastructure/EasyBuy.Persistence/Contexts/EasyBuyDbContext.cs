@@ -15,13 +15,15 @@ public class EasyBuyDbContext : DbContext
     {
     }
 
-    public DbSet<AppUser> AppUsers { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<Basket> Baskets { get; set; }
-    public DbSet<BasketItem> BasketItems { get; set; }
-    public DbSet<Delivery> Deliveries { get; set; }
-    public DbSet<File> Files { get; set; }
+    public DbSet<AppUser> AppUsers { get; set; } = default!;
+    public DbSet<Product> Products { get; set; } = default!;
+    public DbSet<Order> Orders { get; set; } = default!;
+    public DbSet<Basket> Baskets { get; set; } = default!;
+    public DbSet<BasketItem> BasketItems { get; set; } = default!;
+    public DbSet<Delivery> Deliveries { get; set; } = default!;
+    public DbSet<File> Files { get; set; } = default!;
+    public DbSet<ProductImageFile> ProductImages { get; set; } = default!;
+    public DbSet<InvoiceFile> Invoices { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,7 +41,7 @@ public class EasyBuyDbContext : DbContext
                 .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
                 ?.MakeGenericMethod(entityType.ClrType);
 
-            method?.Invoke(null, new object[] { modelBuilder });
+            method?.Invoke(null, [modelBuilder]);
 
             modelBuilder.Entity(entityType.ClrType)
                 .HasKey(nameof(BaseEntity.Id));
@@ -92,7 +94,7 @@ public class EasyBuyDbContext : DbContext
 
             entityEntry.Property(CommonShadowProperties.ModifiedDate).CurrentValue = DateTime.UtcNow;
 
-            if (entityEntry.Property("IsDeleted").CurrentValue is not bool isDeleted || !isDeleted)
+            if (entityEntry.Property("IsDeleted").CurrentValue is not true)
                 continue;
 
             entityEntry.Property(CommonShadowProperties.DeletedDate).CurrentValue = DateTime.UtcNow;

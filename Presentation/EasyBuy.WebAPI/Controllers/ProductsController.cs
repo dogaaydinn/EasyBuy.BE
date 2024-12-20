@@ -92,4 +92,5 @@ public class ProductsController : ControllerBase
         await _storageService.UploadFilesAsync("mydoga", files);
         return Ok();
     }
+    
 }
