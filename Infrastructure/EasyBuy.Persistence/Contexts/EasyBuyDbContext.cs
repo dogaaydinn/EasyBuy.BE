@@ -3,33 +3,101 @@ using EasyBuy.Domain.Entities;
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Primitives;
 using EasyBuy.Persistence.Constants;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using File = EasyBuy.Domain.Entities.File;
 
 namespace EasyBuy.Persistence.Contexts;
 
-public class EasyBuyDbContext : DbContext
+public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
 {
     public EasyBuyDbContext(DbContextOptions<EasyBuyDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<AppUser> AppUsers { get; set; } = default!;
+    // Identity (Users, Roles handled by IdentityDbContext)
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+
+    // Products & Catalog
     public DbSet<Product> Products { get; set; } = default!;
+    public DbSet<Category> Categories { get; set; } = default!;
+    public DbSet<Review> Reviews { get; set; } = default!;
+    public DbSet<ProductImageFile> ProductImages { get; set; } = default!;
+
+    // Orders & Shopping
     public DbSet<Order> Orders { get; set; } = default!;
     public DbSet<Basket> Baskets { get; set; } = default!;
     public DbSet<BasketItem> BasketItems { get; set; } = default!;
     public DbSet<Delivery> Deliveries { get; set; } = default!;
+    public DbSet<Payment> Payments { get; set; } = default!;
+
+    // Customer Data
+    public DbSet<Address> Addresses { get; set; } = default!;
+    public DbSet<Wishlist> Wishlists { get; set; } = default!;
+    public DbSet<WishlistItem> WishlistItems { get; set; } = default!;
+
+    // Promotions
+    public DbSet<Coupon> Coupons { get; set; } = default!;
+
+    // Files
     public DbSet<File> Files { get; set; } = default!;
-    public DbSet<ProductImageFile> ProductImages { get; set; } = default!;
     public DbSet<InvoiceFile> Invoices { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // Apply entity configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyBuyDbContext).Assembly);
+
+        // Configure Identity tables with custom names
+        modelBuilder.Entity<AppUser>(b =>
+        {
+            b.ToTable("Users");
+            b.HasQueryFilter(u => !u.IsDeleted);
+        });
+
+        modelBuilder.Entity<AppRole>(b =>
+        {
+            b.ToTable("Roles");
+        });
+
+        modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<Guid>>(b =>
+        {
+            b.ToTable("UserRoles");
+        });
+
+        modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserClaim<Guid>>(b =>
+        {
+            b.ToTable("UserClaims");
+        });
+
+        modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<Guid>>(b =>
+        {
+            b.ToTable("UserLogins");
+        });
+
+        modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityRoleClaim<Guid>>(b =>
+        {
+            b.ToTable("RoleClaims");
+        });
+
+        modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<Guid>>(b =>
+        {
+            b.ToTable("UserTokens");
+        });
+
+        // Configure RefreshToken
+        modelBuilder.Entity<RefreshToken>(b =>
+        {
+            b.HasKey(rt => rt.Id);
+            b.HasOne(rt => rt.User)
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(rt => rt.Token).IsUnique();
+        });
 
         var entityTypes = modelBuilder.Model.GetEntityTypes().ToList();
 

@@ -3,6 +3,7 @@ using EasyBuy.Application.Abstractions.Storage.Azure;
 using EasyBuy.Application.Abstractions.Storage.Local;
 using EasyBuy.Application.Common.Interfaces;
 using EasyBuy.Infrastructure.Enums;
+using EasyBuy.Infrastructure.Services.Auth;
 using EasyBuy.Infrastructure.Services.Caching;
 using EasyBuy.Infrastructure.Services.CurrentUser;
 using EasyBuy.Infrastructure.Services.DateTime;
@@ -43,6 +44,9 @@ public static class ServiceRegistration
 
         // Register payment service
         services.AddScoped<IPaymentService, StripePaymentService>();
+
+        // Register authentication service
+        services.AddScoped<ITokenService, JwtTokenService>();
 
         return services;
     }

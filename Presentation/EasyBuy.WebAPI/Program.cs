@@ -1,17 +1,24 @@
 using Asp.Versioning;
 using AspNetCoreRateLimit;
 using EasyBuy.Application;
+using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Infrastructure;
 using EasyBuy.Infrastructure.Services.Storage.Azure;
 using EasyBuy.Persistence;
+using EasyBuy.Persistence.Contexts;
+using EasyBuy.Persistence.Data;
 using EasyBuy.WebAPI.Middleware;
 using Hangfire;
 using Hangfire.PostgreSql;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.IO.Compression;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +50,91 @@ try
 
     // Add storage service (Azure by default)
     builder.Services.AddStorage<AzureStorage>();
+
+    // Configure ASP.NET Core Identity
+    builder.Services.AddIdentity<AppUser, AppRole>(options =>
+    {
+        // Password settings
+        options.Password.RequireDigit = builder.Configuration.GetValue<bool>("Identity:Password:RequireDigit", true);
+        options.Password.RequireLowercase = builder.Configuration.GetValue<bool>("Identity:Password:RequireLowercase", true);
+        options.Password.RequireUppercase = builder.Configuration.GetValue<bool>("Identity:Password:RequireUppercase", true);
+        options.Password.RequireNonAlphanumeric = builder.Configuration.GetValue<bool>("Identity:Password:RequireNonAlphanumeric", true);
+        options.Password.RequiredLength = builder.Configuration.GetValue<int>("Identity:Password:RequiredLength", 8);
+        options.Password.RequiredUniqueChars = builder.Configuration.GetValue<int>("Identity:Password:RequiredUniqueChars", 1);
+
+        // Lockout settings
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue<int>("Identity:Lockout:DefaultLockoutTimeSpanMinutes", 5));
+        options.Lockout.MaxFailedAccessAttempts = builder.Configuration.GetValue<int>("Identity:Lockout:MaxFailedAccessAttempts", 5);
+        options.Lockout.AllowedForNewUsers = builder.Configuration.GetValue<bool>("Identity:Lockout:AllowedForNewUsers", true);
+
+        // User settings
+        options.User.RequireUniqueEmail = builder.Configuration.GetValue<bool>("Identity:User:RequireUniqueEmail", true);
+        options.SignIn.RequireConfirmedEmail = builder.Configuration.GetValue<bool>("Identity:SignIn:RequireConfirmedEmail", false);
+        options.SignIn.RequireConfirmedPhoneNumber = builder.Configuration.GetValue<bool>("Identity:SignIn:RequireConfirmedPhoneNumber", false);
+    })
+    .AddEntityFrameworkStores<EasyBuyDbContext>()
+    .AddDefaultTokenProviders();
+
+    // Configure JWT Authentication
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var secretKey = jwtSettings["SecretKey"];
+    if (string.IsNullOrEmpty(secretKey))
+    {
+        throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
+    }
+
+    var key = Encoding.UTF8.GetBytes(secretKey);
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = builder.Environment.IsProduction();
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ClockSkew = TimeSpan.Zero // Remove default 5 minute tolerance
+        };
+
+        // Add logging for authentication failures
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Log.Warning("JWT Authentication failed: {Exception}", context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Log.Debug("JWT token validated for user: {User}", context.Principal?.Identity?.Name);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Log.Warning("JWT Authentication challenge: {Error}, {ErrorDescription}", context.Error, context.ErrorDescription);
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+    // Add authorization policies
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Admin", "Manager"));
+        options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole("Customer"));
+    });
 
     // Configure CORS
     var corsConfig = builder.Configuration.GetSection("Cors");
@@ -203,6 +295,21 @@ try
 
     var app = builder.Build();
 
+    // Seed database in development environment
+    if (app.Environment.IsDevelopment())
+    {
+        try
+        {
+            Log.Information("Seeding database...");
+            await app.Services.SeedDatabaseAsync();
+            Log.Information("Database seeded successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while seeding the database. Continuing startup...");
+        }
+    }
+
     // Configure the HTTP request pipeline
     if (app.Environment.IsDevelopment())
     {
@@ -250,8 +357,8 @@ try
     // Routing
     app.UseRouting();
 
-    // Authentication & Authorization (TODO: Add when Identity is configured)
-    // app.UseAuthentication();
+    // Authentication & Authorization
+    app.UseAuthentication();
     app.UseAuthorization();
 
     // Health Checks
