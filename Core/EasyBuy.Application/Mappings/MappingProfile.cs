@@ -56,7 +56,7 @@ public class MappingProfile : AutoMapper.Profile
 
         // Basket mappings
         CreateMap<Basket, BasketDto>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Customer.Id));
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.AppUser.Id));
 
         CreateMap<BasketItem, BasketItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))

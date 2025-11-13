@@ -8,7 +8,7 @@ public class DeliveryMethodConfiguration : IEntityTypeConfiguration<Delivery>
 {
     public void Configure(EntityTypeBuilder<Delivery> builder)
     {
-        builder.HasKey(dm => dm.Id);
+        // Key is inherited from BaseEntity, no need to configure explicitly
 
         builder.Property(dm => dm.ShortName)
             .IsRequired()

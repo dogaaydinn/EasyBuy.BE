@@ -26,7 +26,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PagedRe
 
     public async Task<PagedResult<ProductListDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
     {
-        var query = _productReadRepository.GetAll(false);
+        var query = _productReadRepository.Query;
 
         // Apply filters
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -42,7 +42,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PagedRe
 
         if (!string.IsNullOrWhiteSpace(request.Brand))
         {
-            query = query.Where(p => p.Brand == request.Brand);
+            query = query.Where(p => p.ProductBrand == request.Brand);
         }
 
         if (request.MinPrice.HasValue)
@@ -64,7 +64,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PagedRe
         query = request.SortBy.ToLower() switch
         {
             "price" => request.SortDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
-            "date" => request.SortDescending ? query.OrderByDescending(p => p.CreatedDate) : query.OrderBy(p => p.CreatedDate),
+            "date" => request.SortDescending ? query.OrderByDescending(p => EF.Property<DateTime>(p, "CreatedDate")) : query.OrderBy(p => EF.Property<DateTime>(p, "CreatedDate")),
             _ => request.SortDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name)
         };
 

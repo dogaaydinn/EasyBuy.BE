@@ -9,34 +9,12 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     public void Configure(EntityTypeBuilder<AppUser> builder)
     {
         builder.Property(u => u.FirstName)
-            .HasMaxLength(100)
-            .IsRequired();
+            .HasMaxLength(100);
 
         builder.Property(u => u.LastName)
-            .HasMaxLength(100)
-            .IsRequired();
+            .HasMaxLength(100);
 
-        builder.OwnsOne(u => u.Address, a =>
-        {
-            a.Property(a => a.Street)
-                .HasColumnName("StreetName")
-                .IsRequired()
-                .HasMaxLength(100);
-
-            a.Property(a => a.City)
-                .HasColumnName("CityName")
-                .IsRequired()
-                .HasMaxLength(100);
-
-            a.Property(a => a.State)
-                .HasColumnName("StateName")
-                .IsRequired()
-                .HasMaxLength(100);
-
-            a.Property(a => a.PostalCode)
-                .HasColumnName("PostalCode")
-                .IsRequired()
-                .HasMaxLength(20);
-        });
+        // Note: Address is a collection in AppUser, not a single value object
+        // Configured in AddressConfiguration instead
     }
 }

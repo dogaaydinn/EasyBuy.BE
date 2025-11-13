@@ -33,7 +33,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             Price = request.Price,
             Quantity = request.Quantity,
             ProductType = request.ProductType,
-            Brand = request.Brand
+            ProductBrand = request.Brand ?? string.Empty
         };
 
         await _productWriteRepository.AddAsync(product);

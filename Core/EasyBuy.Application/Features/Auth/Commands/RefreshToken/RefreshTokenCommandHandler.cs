@@ -2,7 +2,6 @@ using EasyBuy.Application.Common.Interfaces;
 using EasyBuy.Application.Common.Models;
 using EasyBuy.Application.DTOs.Users;
 using EasyBuy.Domain.Entities.Identity;
-using EasyBuy.Persistence.Contexts;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +12,12 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
-    private readonly EasyBuyDbContext _context;
+    private readonly IApplicationDbContext _context;
 
     public RefreshTokenCommandHandler(
         UserManager<AppUser> userManager,
         ITokenService tokenService,
-        EasyBuyDbContext context)
+        IApplicationDbContext context)
     {
         _userManager = userManager;
         _tokenService = tokenService;

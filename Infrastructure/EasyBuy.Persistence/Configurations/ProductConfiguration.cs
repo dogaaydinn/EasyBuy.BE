@@ -22,11 +22,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
-        builder.HasMany(p => p.ProductImageFiles)
-            .WithMany(pif => pif.Products)
-            .UsingEntity<Dictionary<string, object>>(
-                "ProductProductImageFile",
-                j => j.HasOne<ProductImageFile>().WithMany().HasForeignKey("ProductImageFileId"),
-                j => j.HasOne<Product>().WithMany().HasForeignKey("ProductId"));
+        // Many-to-many with ProductImageFiles commented out temporarily
+        // Will be configured after TPH inheritance is properly set up
+        // builder.HasMany(p => p.ProductImageFiles)
+        //     .WithMany(pif => pif.Products)
+        //     .UsingEntity<Dictionary<string, object>>(
+        //         "ProductProductImageFile",
+        //         j => j.HasOne<ProductImageFile>().WithMany().HasForeignKey("ProductImageFileId"),
+        //         j => j.HasOne<Product>().WithMany().HasForeignKey("ProductId"));
     }
 }

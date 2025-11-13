@@ -4,6 +4,6 @@ namespace EasyBuy.Infrastructure.Services.DateTime;
 
 public class DateTimeService : IDateTime
 {
-    public System.DateTime Now => System.DateTime.Now;
-    public System.DateTime UtcNow => System.DateTime.UtcNow;
+    public global::System.DateTime Now => global::System.DateTime.Now;
+    public global::System.DateTime UtcNow => global::System.DateTime.UtcNow;
 }

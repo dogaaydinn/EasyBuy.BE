@@ -1,3 +1,4 @@
+using EasyBuy.Application.Common.Interfaces;
 using EasyBuy.Application.Repositories.Customer;
 using EasyBuy.Application.Repositories.File;
 using EasyBuy.Application.Repositories.Order;
@@ -26,6 +27,9 @@ public static class ServiceRegistration
 
         services.AddDbContext<EasyBuyDbContext>(options =>
             options.UseNpgsql(connectionString));
+
+        // Register IApplicationDbContext
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<EasyBuyDbContext>());
 
         #region Repository Services
 

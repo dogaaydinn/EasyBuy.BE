@@ -31,12 +31,16 @@
         <PackageReference Include="MediatR" Version="12.4.1"/>
 
         <!-- AutoMapper -->
-        <PackageReference Include="AutoMapper" Version="13.0.1"/>
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="13.0.1"/>
+        <PackageReference Include="AutoMapper" Version="12.0.1"/>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
 
         <!-- Microsoft Extensions -->
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0"/>
+
+        <!-- Authentication -->
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11"/>
     </ItemGroup>
 
 </Project>

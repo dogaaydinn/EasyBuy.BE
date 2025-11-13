@@ -1,7 +1,9 @@
 using System.Reflection;
+using EasyBuy.Application.Common.Interfaces;
 using EasyBuy.Domain.Entities;
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Primitives;
+using EasyBuy.Persistence.Configurations;
 using EasyBuy.Persistence.Constants;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +11,7 @@ using File = EasyBuy.Domain.Entities.File;
 
 namespace EasyBuy.Persistence.Contexts;
 
-public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
+public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>, IApplicationDbContext
 {
     public EasyBuyDbContext(DbContextOptions<EasyBuyDbContext> options)
         : base(options)
@@ -23,7 +25,7 @@ public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     public DbSet<Product> Products { get; set; } = default!;
     public DbSet<Category> Categories { get; set; } = default!;
     public DbSet<Review> Reviews { get; set; } = default!;
-    public DbSet<ProductImageFile> ProductImages { get; set; } = default!;
+    // ProductImageFile is accessed via Files DbSet (TPH inheritance)
 
     // Orders & Shopping
     public DbSet<Order> Orders { get; set; } = default!;
@@ -40,15 +42,14 @@ public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     // Promotions
     public DbSet<Coupon> Coupons { get; set; } = default!;
 
-    // Files
+    // Files (InvoiceFile is a derived type and will be included automatically via TPH inheritance)
     public DbSet<File> Files { get; set; } = default!;
-    public DbSet<InvoiceFile> Invoices { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Apply entity configurations
+        // Apply all entity configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyBuyDbContext).Assembly);
 
         // Configure Identity tables with custom names
@@ -105,14 +106,24 @@ public class EasyBuyDbContext : IdentityDbContext<AppUser, AppRole, Guid>
         {
             if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType)) continue;
 
-            var method = typeof(EasyBuyDbContext)
-                .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
-                ?.MakeGenericMethod(entityType.ClrType);
+            // Only configure key and filters for root types (not derived types in TPH hierarchy)
+            // Derived types inherit the key configuration and filters from their root type
+            var baseType = entityType.ClrType.BaseType;
+            var isRootEntity = baseType == typeof(BaseEntity) || !typeof(BaseEntity).IsAssignableFrom(baseType);
 
-            method?.Invoke(null, [modelBuilder]);
+            if (isRootEntity)
+            {
+                // Apply soft delete filter
+                var method = typeof(EasyBuyDbContext)
+                    .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
+                    ?.MakeGenericMethod(entityType.ClrType);
 
-            modelBuilder.Entity(entityType.ClrType)
-                .HasKey(nameof(BaseEntity.Id));
+                method?.Invoke(null, [modelBuilder]);
+
+                // Configure key
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasKey(nameof(BaseEntity.Id));
+            }
         }
 
         #region Shadow Properties

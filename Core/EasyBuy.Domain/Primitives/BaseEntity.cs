@@ -11,7 +11,8 @@ public abstract class BaseEntity
         IsDeleted = false;
     }
 
-    [Key] public Guid Id { get; set; } = Guid.NewGuid();
+    // [Key] attribute removed - configured via Fluent API in EF configurations to avoid TPH inheritance issues
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public DateTimeOffset CreatedAt { get; }
     public DateTimeOffset UpdatedAt { get; private set; }

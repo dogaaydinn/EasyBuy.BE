@@ -1,5 +1,6 @@
 using EasyBuy.Domain.Entities;
 using EasyBuy.Domain.Entities.Identity;
+using EasyBuy.Domain.Enums;
 using EasyBuy.Persistence.Contexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -112,7 +113,6 @@ public class DatabaseSeeder
                 EmailConfirmed = true,
                 PhoneNumber = "+1234567890",
                 PhoneNumberConfirmed = true,
-                CreatedDate = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(admin, "Admin@123456");
@@ -141,7 +141,6 @@ public class DatabaseSeeder
                 EmailConfirmed = true,
                 PhoneNumber = "+1234567891",
                 PhoneNumberConfirmed = true,
-                CreatedDate = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(manager, "Manager@123456");
@@ -165,7 +164,6 @@ public class DatabaseSeeder
                 EmailConfirmed = true,
                 PhoneNumber = "+1234567892",
                 PhoneNumberConfirmed = true,
-                CreatedDate = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(customer, "Customer@123456");
@@ -197,40 +195,30 @@ public class DatabaseSeeder
                 Id = Guid.NewGuid(),
                 Name = "Electronics",
                 Description = "Electronic devices and accessories",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Clothing",
                 Description = "Apparel and fashion items",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Books",
                 Description = "Physical and digital books",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Home & Garden",
                 Description = "Home improvement and garden supplies",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Sports & Outdoors",
                 Description = "Sports equipment and outdoor gear",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             }
         };
 
@@ -268,10 +256,9 @@ public class DatabaseSeeder
                     Name = "Laptop Pro 15",
                     Description = "High-performance laptop with 15-inch display, 16GB RAM, 512GB SSD",
                     Price = 1299.99m,
-                    Stock = 50,
-                    CategoryId = electronicsCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 50,
+                    ProductType = ProductType.Electronics,
+                    ProductBrand = "TechBrand"
                 },
                 new Product
                 {
@@ -279,10 +266,9 @@ public class DatabaseSeeder
                     Name = "Wireless Mouse",
                     Description = "Ergonomic wireless mouse with 6 programmable buttons",
                     Price = 29.99m,
-                    Stock = 200,
-                    CategoryId = electronicsCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 200,
+                    ProductType = ProductType.Electronics,
+                    ProductBrand = "TechBrand"
                 },
                 new Product
                 {
@@ -290,10 +276,9 @@ public class DatabaseSeeder
                     Name = "4K Monitor 27\"",
                     Description = "Ultra HD 4K monitor with HDR support",
                     Price = 399.99m,
-                    Stock = 75,
-                    CategoryId = electronicsCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 75,
+                    ProductType = ProductType.Electronics,
+                    ProductBrand = "TechBrand"
                 }
             });
         }
@@ -308,10 +293,9 @@ public class DatabaseSeeder
                     Name = "Cotton T-Shirt",
                     Description = "100% cotton comfortable t-shirt, available in multiple colors",
                     Price = 19.99m,
-                    Stock = 500,
-                    CategoryId = clothingCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 500,
+                    ProductType = ProductType.Clothing,
+                    ProductBrand = "FashionBrand"
                 },
                 new Product
                 {
@@ -319,10 +303,9 @@ public class DatabaseSeeder
                     Name = "Denim Jeans",
                     Description = "Classic fit denim jeans",
                     Price = 49.99m,
-                    Stock = 300,
-                    CategoryId = clothingCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 300,
+                    ProductType = ProductType.Clothing,
+                    ProductBrand = "FashionBrand"
                 }
             });
         }
@@ -337,10 +320,9 @@ public class DatabaseSeeder
                     Name = "Clean Code",
                     Description = "A Handbook of Agile Software Craftsmanship by Robert C. Martin",
                     Price = 34.99m,
-                    Stock = 150,
-                    CategoryId = booksCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 150,
+                    ProductType = ProductType.Electronics,
+                    ProductBrand = "Prentice Hall"
                 },
                 new Product
                 {
@@ -348,10 +330,9 @@ public class DatabaseSeeder
                     Name = "Design Patterns",
                     Description = "Elements of Reusable Object-Oriented Software",
                     Price = 39.99m,
-                    Stock = 100,
-                    CategoryId = booksCategory.Id,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow
+                    Quantity = 100,
+                    ProductType = ProductType.Electronics,
+                    ProductBrand = "Addison-Wesley"
                 }
             });
         }
@@ -381,46 +362,40 @@ public class DatabaseSeeder
                 Id = Guid.NewGuid(),
                 Code = "WELCOME10",
                 Description = "10% off for new customers",
-                DiscountType = Domain.Enums.DiscountType.Percentage,
-                DiscountValue = 10,
+                Type = CouponType.Percentage,
+                DiscountPercentage = 10,
                 MinimumOrderAmount = 50,
                 MaximumDiscountAmount = 20,
                 StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(3),
+                ExpiryDate = DateTime.UtcNow.AddMonths(3),
                 UsageLimit = 1000,
                 UsageCount = 0,
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Coupon
             {
                 Id = Guid.NewGuid(),
                 Code = "SAVE20",
                 Description = "$20 off on orders over $100",
-                DiscountType = Domain.Enums.DiscountType.FixedAmount,
-                DiscountValue = 20,
+                Type = CouponType.FixedAmount,
+                DiscountAmount = 20,
                 MinimumOrderAmount = 100,
                 StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(1),
+                ExpiryDate = DateTime.UtcNow.AddMonths(1),
                 UsageLimit = 500,
                 UsageCount = 0,
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             },
             new Coupon
             {
                 Id = Guid.NewGuid(),
                 Code = "FREESHIP",
                 Description = "Free shipping on all orders",
-                DiscountType = Domain.Enums.DiscountType.FreeShipping,
-                DiscountValue = 0,
+                Type = CouponType.FreeShipping,
+                DiscountPercentage = 0,
                 MinimumOrderAmount = 0,
                 StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(6),
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
                 UsageLimit = null, // Unlimited
                 UsageCount = 0,
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
             }
         };
 

@@ -54,7 +54,7 @@ public class StripePaymentService : IPaymentService
                 IsSuccess = paymentIntent.Status == "succeeded" || paymentIntent.Status == "processing",
                 TransactionId = paymentIntent.Id,
                 Status = MapStripeStatusToPaymentStatus(paymentIntent.Status),
-                ProcessedAt = DateTime.UtcNow,
+                ProcessedAt = System.DateTime.UtcNow,
                 Message = paymentIntent.Status == "succeeded" ? "Payment processed successfully" : $"Payment status: {paymentIntent.Status}"
             };
         }
@@ -68,7 +68,7 @@ public class StripePaymentService : IPaymentService
                 Status = PaymentStatus.Failed,
                 ErrorCode = ex.StripeError?.Code,
                 Message = ex.StripeError?.Message ?? ex.Message,
-                ProcessedAt = DateTime.UtcNow
+                ProcessedAt = System.DateTime.UtcNow
             };
         }
     }
@@ -93,7 +93,7 @@ public class StripePaymentService : IPaymentService
                 IsSuccess = refund.Status == "succeeded",
                 TransactionId = refund.Id,
                 Status = refund.Status == "succeeded" ? PaymentStatus.Refunded : PaymentStatus.Failed,
-                ProcessedAt = DateTime.UtcNow,
+                ProcessedAt = System.DateTime.UtcNow,
                 Message = refund.Status == "succeeded" ? "Refund processed successfully" : $"Refund status: {refund.Status}"
             };
         }
@@ -107,7 +107,7 @@ public class StripePaymentService : IPaymentService
                 Status = PaymentStatus.Failed,
                 ErrorCode = ex.StripeError?.Code,
                 Message = ex.StripeError?.Message ?? ex.Message,
-                ProcessedAt = DateTime.UtcNow
+                ProcessedAt = System.DateTime.UtcNow
             };
         }
     }

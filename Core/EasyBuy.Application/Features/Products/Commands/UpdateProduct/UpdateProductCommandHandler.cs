@@ -40,7 +40,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         if (request.Price.HasValue) product.Price = request.Price.Value;
         if (request.Quantity.HasValue) product.Quantity = request.Quantity.Value;
         if (request.ProductType.HasValue) product.ProductType = request.ProductType.Value;
-        if (request.Brand != null) product.Brand = request.Brand;
+        if (request.Brand != null) product.ProductBrand = request.Brand;
 
         _productWriteRepository.Update(product);
         await _productWriteRepository.SaveChangesAsync();

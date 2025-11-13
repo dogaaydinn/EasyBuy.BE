@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EasyBuy.Application.Common.Models;
 using EasyBuy.Application.Features.Products.Commands.CreateProduct;
 using EasyBuy.Application.Features.Products.Commands.DeleteProduct;

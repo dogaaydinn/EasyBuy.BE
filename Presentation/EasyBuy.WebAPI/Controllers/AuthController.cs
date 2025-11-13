@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EasyBuy.Application.Features.Auth.Commands.Login;
 using EasyBuy.Application.Features.Auth.Commands.RefreshToken;
 using EasyBuy.Application.Features.Auth.Commands.Register;
@@ -47,7 +48,7 @@ public class AuthController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogWarning("Registration failed for email: {Email}. Reason: {Error}", command.Email, result.Error);
+            _logger.LogWarning("Registration failed for email: {Email}. Reason: {Errors}", command.Email, string.Join(", ", result.Errors));
             return BadRequest(result);
         }
 
@@ -77,7 +78,7 @@ public class AuthController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogWarning("Login failed for: {EmailOrUsername}. Reason: {Error}", command.EmailOrUsername, result.Error);
+            _logger.LogWarning("Login failed for: {EmailOrUsername}. Reason: {Errors}", command.EmailOrUsername, string.Join(", ", result.Errors));
             return BadRequest(result);
         }
 
@@ -107,7 +108,7 @@ public class AuthController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            _logger.LogWarning("Token refresh failed. Reason: {Error}", result.Error);
+            _logger.LogWarning("Token refresh failed. Reason: {Errors}", string.Join(", ", result.Errors));
             return BadRequest(result);
         }
 

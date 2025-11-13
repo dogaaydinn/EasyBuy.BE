@@ -3,7 +3,6 @@ using EasyBuy.Application.Common.Models;
 using EasyBuy.Application.DTOs.Users;
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Domain.Events;
-using EasyBuy.Persistence.Contexts;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +16,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     private readonly ITokenService _tokenService;
     private readonly IPublisher _publisher;
     private readonly IEmailService _emailService;
-    private readonly EasyBuyDbContext _context;
+    private readonly IApplicationDbContext _context;
 
     public RegisterCommandHandler(
         UserManager<AppUser> userManager,
         ITokenService tokenService,
         IPublisher publisher,
         IEmailService emailService,
-        EasyBuyDbContext context)
+        IApplicationDbContext context)
     {
         _userManager = userManager;
         _tokenService = tokenService;
@@ -81,7 +80,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value ?? Guid.NewGuid().ToString();
 
         // Store refresh token in database
-        var refreshTokenEntity = new RefreshToken
+        var refreshTokenEntity = new Domain.Entities.Identity.RefreshToken
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,

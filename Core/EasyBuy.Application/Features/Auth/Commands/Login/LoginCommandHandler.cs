@@ -2,7 +2,6 @@ using EasyBuy.Application.Common.Interfaces;
 using EasyBuy.Application.Common.Models;
 using EasyBuy.Application.DTOs.Users;
 using EasyBuy.Domain.Entities.Identity;
-using EasyBuy.Persistence.Contexts;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,13 +13,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly ITokenService _tokenService;
-    private readonly EasyBuyDbContext _context;
+    private readonly IApplicationDbContext _context;
 
     public LoginCommandHandler(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         ITokenService tokenService,
-        EasyBuyDbContext context)
+        IApplicationDbContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -69,7 +68,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value ?? Guid.NewGuid().ToString();
 
         // Store refresh token in database
-        var refreshTokenEntity = new RefreshToken
+        var refreshTokenEntity = new Domain.Entities.Identity.RefreshToken
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
