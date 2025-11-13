@@ -1,96 +1,98 @@
-using System.Net;
-using EasyBuy.Application.Abstractions.Storage;
-using EasyBuy.Application.Repositories.File;
-using EasyBuy.Application.Repositories.Product;
-using EasyBuy.Application.ViewModels.Products;
-using EasyBuy.Domain.Entities;
-using EasyBuy.Domain.Enums;
+using EasyBuy.Application.Common.Models;
+using EasyBuy.Application.Features.Products.Commands.CreateProduct;
+using EasyBuy.Application.Features.Products.Commands.DeleteProduct;
+using EasyBuy.Application.Features.Products.Commands.UpdateProduct;
+using EasyBuy.Application.Features.Products.Queries.GetProductById;
+using EasyBuy.Application.Features.Products.Queries.GetProducts;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EasyBuy.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
 public class ProductsController : ControllerBase
 {
-    private readonly IWebHostEnvironment _hostingEnvironment;
-    private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
-    private readonly IProductReadRepository _productReadRepository;
-    private readonly IProductWriteRepository _productWriteRepository;
-    private readonly IStorageService _storageService;
+    private readonly IMediator _mediator;
+    private readonly ILogger<ProductsController> _logger;
 
-    public ProductsController(IProductReadRepository productReadRepository,
-        IProductWriteRepository productWriteRepository,
-        IWebHostEnvironment hostingEnvironment,
-        IProductImageFileWriteRepository productImageFileWriteRepository,
-        IStorageService storageService)
+    public ProductsController(IMediator mediator, ILogger<ProductsController> logger)
     {
-        _productReadRepository = productReadRepository;
-        _productWriteRepository = productWriteRepository;
-        _hostingEnvironment = hostingEnvironment;
-        _productImageFileWriteRepository = productImageFileWriteRepository;
-        _storageService = storageService;
+        _mediator = mediator;
+        _logger = logger;
     }
 
+    /// <summary>
+    /// Get all products with pagination and filtering
+    /// </summary>
     [HttpGet]
-    public ObjectResult Get()
+    [ProducesResponseType(typeof(PagedResult<Application.DTOs.Products.ProductListDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProducts([FromQuery] GetProductsQuery query)
     {
-        var entities = _productReadRepository.GetAll();
-
-        return Ok(entities);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id)
+    /// <summary>
+    /// Get product by ID
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<Application.DTOs.Products.ProductDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProduct(Guid id)
     {
-        var entity = await _productReadRepository.GetByIdAsync(id, false);
+        var query = new GetProductByIdQuery(id);
+        var result = await _mediator.Send(query);
 
-        return Ok(entity);
+        return Ok(ApiResponse<Application.DTOs.Products.ProductDto>.SuccessResponse(result.Data!, result.Message));
     }
 
+    /// <summary>
+    /// Create a new product
+    /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Post(VmCreateProduct product)
+    [ProducesResponseType(typeof(ApiResponse<Application.DTOs.Products.ProductDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
     {
-        await _productWriteRepository.AddAsync(new Product
+        var result = await _mediator.Send(command);
+
+        return CreatedAtAction(
+            nameof(GetProduct),
+            new { id = result.Data!.Id },
+            ApiResponse<Application.DTOs.Products.ProductDto>.SuccessResponse(result.Data, result.Message, 201));
+    }
+
+    /// <summary>
+    /// Update an existing product
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<Application.DTOs.Products.ProductDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductCommand command)
+    {
+        if (id != command.Id)
         {
-            Name = product.Name,
-            Price = product.Price,
-            ProductType = ProductType.Accessories
-        });
+            return BadRequest(ApiResponse<object>.ErrorResponse("Product ID mismatch", "The ID in the URL must match the ID in the request body."));
+        }
 
-        await _productWriteRepository.SaveChangesAsync();
-        return StatusCode((int)HttpStatusCode.Created);
+        var result = await _mediator.Send(command);
+        return Ok(ApiResponse<Application.DTOs.Products.ProductDto>.SuccessResponse(result.Data!, result.Message));
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Put(VmUpdateProduct product)
+    /// <summary>
+    /// Delete a product
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteProduct(Guid id)
     {
-        var entity = await _productReadRepository.GetByIdAsync(product.Id, false);
+        var command = new DeleteProductCommand(id);
+        var result = await _mediator.Send(command);
 
-        entity.Name = product.Name;
-        entity.Price = product.Price;
-
-        await _productWriteRepository.SaveChangesAsync();
-        return Ok();
+        return Ok(ApiResponse<object>.SuccessResponse(null, result.Message));
     }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var entity = await _productReadRepository.GetByIdAsync(id, false);
-
-        _productWriteRepository.HardDelete(entity);
-        await _productWriteRepository.SaveChangesAsync();
-        return Ok();
-    }
-
-    [HttpPost("[action]")]
-    public async Task<IActionResult> UploadImage(IFormFileCollection files)
-    {
-        var uploadPath = Path.Combine(_hostingEnvironment.WebRootPath, "images");
-
-        await _storageService.UploadFilesAsync("mydoga", files);
-        return Ok();
-    }
-    
 }

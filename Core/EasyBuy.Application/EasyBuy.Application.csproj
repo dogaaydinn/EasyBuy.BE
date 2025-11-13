@@ -11,9 +11,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- Validation -->
         <PackageReference Include="FluentValidation" Version="11.11.0"/>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0"/>
+
+        <!-- EF Core -->
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,6 +26,17 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1"/>
+
+        <!-- CQRS & Mediator -->
+        <PackageReference Include="MediatR" Version="12.4.1"/>
+
+        <!-- AutoMapper -->
+        <PackageReference Include="AutoMapper" Version="13.0.1"/>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="13.0.1"/>
+
+        <!-- Microsoft Extensions -->
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
     </ItemGroup>
 
 </Project>

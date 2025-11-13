@@ -8,9 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Validation -->
         <PackageReference Include="FluentValidation" Version="11.11.0"/>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0"/>
+
+        <!-- EF Core -->
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
             <PrivateAssets>all</PrivateAssets>
@@ -21,7 +24,61 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1"/>
+
+        <!-- Swagger/OpenAPI -->
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+
+        <!-- CQRS & Mediator -->
+        <PackageReference Include="MediatR" Version="12.4.1"/>
+
+        <!-- AutoMapper -->
+        <PackageReference Include="AutoMapper" Version="13.0.1"/>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="13.0.1"/>
+
+        <!-- Authentication & Authorization -->
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1"/>
+
+        <!-- Logging -->
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3"/>
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="3.1.0"/>
+        <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0"/>
+        <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
+        <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0"/>
+
+        <!-- Caching -->
+        <PackageReference Include="StackExchange.Redis" Version="2.8.16"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.11"/>
+
+        <!-- Health Checks -->
+        <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.2"/>
+        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2"/>
+        <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1"/>
+
+        <!-- API Versioning -->
+        <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0"/>
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0"/>
+
+        <!-- Rate Limiting -->
+        <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0"/>
+
+        <!-- Compression -->
+        <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0"/>
+
+        <!-- Hangfire for Background Jobs -->
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14"/>
+        <PackageReference Include="Hangfire.PostgreSql" Version="1.20.9"/>
+
+        <!-- OpenTelemetry -->
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0"/>
+
+        <!-- NewtonsoftJson for complex serialization -->
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11"/>
     </ItemGroup>
 
     <ItemGroup>
