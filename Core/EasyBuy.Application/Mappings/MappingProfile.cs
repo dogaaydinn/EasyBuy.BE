@@ -17,11 +17,11 @@ public class MappingProfile : AutoMapper.Profile
         // Product mappings
         CreateMap<Product, ProductDto>()
             .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ProductImageFiles.Select(x => x.Path).ToList()))
-            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Quantity > 0));
+            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Stock > 0));
 
         CreateMap<Product, ProductListDto>()
             .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom(src => src.ProductImageFiles.FirstOrDefault() != null ? src.ProductImageFiles.FirstOrDefault()!.Path : null))
-            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Quantity > 0));
+            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Stock > 0));
 
         CreateMap<Product, ProductDetailDto>()
             .IncludeBase<Product, ProductDto>();
@@ -37,18 +37,14 @@ public class MappingProfile : AutoMapper.Profile
 
         // Order mappings
         CreateMap<Order, OrderDto>()
-            .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => $"ORD-{src.Id.ToString().Substring(0, 8).ToUpper()}"))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.AppUser.Id));
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItems))
+            .ForMember(dest => dest.Delivery, opt => opt.Ignore()) // TODO: Add when Delivery entity is created
+            .ForMember(dest => dest.Payment, opt => opt.MapFrom(src => src.Payments.FirstOrDefault()));
 
         CreateMap<Order, OrderListDto>()
-            .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => $"ORD-{src.Id.ToString().Substring(0, 8).ToUpper()}"))
-            .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src => src.Products.Count));
+            .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src => src.OrderItems.Count));
 
-        CreateMap<Product, OrderItemDto>()
-            .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
-            .ForMember(dest => dest.Quantity, opt => opt.Ignore());
+        CreateMap<OrderItem, OrderItemDto>();
 
         CreateMap<Delivery, DeliveryDto>();
 
@@ -56,13 +52,12 @@ public class MappingProfile : AutoMapper.Profile
 
         // Basket mappings
         CreateMap<Basket, BasketDto>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Customer.Id));
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.BasketItems));
 
         CreateMap<BasketItem, BasketItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Product.ProductImageFiles.FirstOrDefault() != null ? src.Product.ProductImageFiles.FirstOrDefault()!.Path : null))
-            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Product.Quantity > 0));
+            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Product.Stock > 0));
 
         // User/Identity mappings
         CreateMap<AppUser, UserDto>()
