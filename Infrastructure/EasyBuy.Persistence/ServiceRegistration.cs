@@ -18,8 +18,14 @@ public static class ServiceRegistration
     public static void AddPersistenceServices(this IServiceCollection services,
         ConfigurationManager builderConfiguration)
     {
+        var connectionString = builderConfiguration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Database connection string 'DefaultConnection' is not configured.");
+        }
+
         services.AddDbContext<EasyBuyDbContext>(options =>
-            options.UseNpgsql("Password=123456;Host=localhost;Port=5432;Database=EasyBuyDB;Username=postgres;"));
+            options.UseNpgsql(connectionString));
 
         #region Repository Services
 
