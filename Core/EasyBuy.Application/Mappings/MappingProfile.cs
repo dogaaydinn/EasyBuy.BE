@@ -35,6 +35,14 @@ public class MappingProfile : AutoMapper.Profile
         CreateMap<Review, ReviewDto>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName ?? "Anonymous"));
 
+        // Wishlist mappings
+        CreateMap<Wishlist, WishlistItemDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Product.ProductImageFiles.FirstOrDefault() != null ? src.Product.ProductImageFiles.FirstOrDefault()!.Path : null))
+            .ForMember(dest => dest.IsInStock, opt => opt.MapFrom(src => src.Product.Stock > 0))
+            .ForMember(dest => dest.AddedDate, opt => opt.MapFrom(src => src.CreatedDate));
+
         // Order mappings
         CreateMap<Order, OrderDto>()
             .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItems))
