@@ -88,6 +88,17 @@ try
     // Add storage service (Azure by default)
     builder.Services.AddStorage<AzureStorage>();
 
+    // ============================================================================
+    // FEATURE MANAGEMENT
+    // ============================================================================
+    // Microsoft.FeatureManagement provides advanced feature flags with:
+    // - Percentage rollouts
+    // - Time windows
+    // - Custom filters
+    // - A/B testing
+    builder.Services.AddFeatureManagement();
+    Log.Information("Feature Management configured");
+
     // Configure ASP.NET Core Identity
     builder.Services.AddIdentity<AppUser, AppRole>(options =>
     {
