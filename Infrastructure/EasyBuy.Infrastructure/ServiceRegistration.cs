@@ -59,6 +59,19 @@ public static class ServiceRegistration
         return services;
     }
 
+    /// <summary>
+    /// Adds MassTransit with RabbitMQ configuration for distributed messaging.
+    /// Call this from Program.cs with configuration:
+    /// builder.Services.AddMassTransitMessaging(builder.Configuration);
+    /// </summary>
+    public static IServiceCollection AddMassTransitMessaging(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // Import MassTransitConfiguration
+        return Messaging.MassTransitConfiguration.AddMassTransitWithRabbitMq(services, configuration);
+    }
+
     public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorage
     {
         serviceCollection.AddScoped<IStorage, T>();

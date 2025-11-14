@@ -217,6 +217,19 @@ try
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
     }
 
+    // ====================================================================
+    // DISTRIBUTED MESSAGING (RabbitMQ + MassTransit)
+    // ====================================================================
+    if (builder.Configuration.GetValue<bool>("RabbitMQ:EnableRabbitMQ"))
+    {
+        Log.Information("Configuring MassTransit with RabbitMQ");
+        builder.Services.AddMassTransitMessaging(builder.Configuration);
+    }
+    else
+    {
+        Log.Information("RabbitMQ messaging disabled");
+    }
+
     // Configure Response Compression
     builder.Services.AddResponseCompression(options =>
     {
