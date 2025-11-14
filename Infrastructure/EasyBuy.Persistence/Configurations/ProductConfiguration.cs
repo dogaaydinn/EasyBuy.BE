@@ -22,6 +22,40 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
+        // ====================================================================
+        // PERFORMANCE INDEXES
+        // ====================================================================
+        // Indexes for common query patterns to improve performance
+
+        // Index on Price for range queries and sorting
+        builder.HasIndex(p => p.Price)
+            .HasDatabaseName("IX_Products_Price");
+
+        // Index on CategoryId for filtering by category
+        builder.HasIndex(p => p.CategoryId)
+            .HasDatabaseName("IX_Products_CategoryId");
+
+        // Composite index on CategoryId + Price for category price range queries
+        builder.HasIndex(p => new { p.CategoryId, p.Price })
+            .HasDatabaseName("IX_Products_CategoryId_Price");
+
+        // Index on CreatedAt for sorting by newest/oldest
+        builder.HasIndex(p => p.CreatedAt)
+            .HasDatabaseName("IX_Products_CreatedAt");
+
+        // Index on Stock for inventory queries (out of stock, low stock)
+        builder.HasIndex(p => p.Stock)
+            .HasDatabaseName("IX_Products_Stock");
+
+        // Composite index for active products sorted by creation date
+        builder.HasIndex(p => new { p.IsActive, p.CreatedAt })
+            .HasDatabaseName("IX_Products_IsActive_CreatedAt")
+            .HasFilter("[IsActive] = 1"); // Partial index for active products only
+
+        // Full-text search preparation: Index on Name for LIKE queries
+        builder.HasIndex(p => p.Name)
+            .HasDatabaseName("IX_Products_Name");
+
         // Many-to-many with ProductImageFiles commented out temporarily
         // Will be configured after TPH inheritance is properly set up
         // builder.HasMany(p => p.ProductImageFiles)
