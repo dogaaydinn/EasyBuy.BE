@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace EasyBuy.WebAPI.Hubs;
@@ -5,7 +6,9 @@ namespace EasyBuy.WebAPI.Hubs;
 /// <summary>
 /// SignalR Hub for real-time order updates.
 /// Clients can subscribe to specific orders to receive live status updates.
+/// Requires authentication for all connections.
 /// </summary>
+[Authorize]
 public class OrderHub : Hub
 {
     private readonly ILogger<OrderHub> _logger;

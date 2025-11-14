@@ -114,12 +114,13 @@ try
             .AddGraphQLServer()
             .AddQueryType<EasyBuy.WebAPI.GraphQL.Queries.Query>()
             .AddMutationType<EasyBuy.WebAPI.GraphQL.Mutations.Mutation>()
+            .AddAuthorization()
             .AddProjections()
             .AddFiltering()
             .AddSorting()
             .RegisterDbContext<EasyBuyDbContext>(DbContextKind.Pooled);
 
-        Log.Information("GraphQL API configured with HotChocolate");
+        Log.Information("GraphQL API configured with HotChocolate and authorization");
     }
 
     // ============================================================================
@@ -236,13 +237,75 @@ try
         };
     });
 
-    // Add authorization policies
+    // ============================================================================
+    // COMPREHENSIVE AUTHORIZATION POLICIES
+    // ============================================================================
+    // Register authorization handlers
+    builder.Services.AddScoped<IAuthorizationHandler, EasyBuy.WebAPI.Authorization.Requirements.EmailVerifiedHandler>();
+    builder.Services.AddScoped<IAuthorizationHandler, EasyBuy.WebAPI.Authorization.Requirements.ManageOrderHandler>();
+    builder.Services.AddScoped<IAuthorizationHandler, EasyBuy.WebAPI.Authorization.Requirements.ManageReviewHandler>();
+
     builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-        options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Admin", "Manager"));
-        options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole("Customer"));
+        // ====================================================================
+        // ROLE-BASED POLICIES
+        // ====================================================================
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequireAdminRole,
+            policy => policy.RequireRole("Admin"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequireManagerRole,
+            policy => policy.RequireRole("Admin", "Manager"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequireCustomerRole,
+            policy => policy.RequireRole("Customer"));
+
+        // ====================================================================
+        // RESOURCE-BASED POLICIES
+        // ====================================================================
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.ManageProducts,
+            policy => policy.RequireRole("Admin", "Manager"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.ManageCategories,
+            policy => policy.RequireRole("Admin", "Manager"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.ManageOrders,
+            policy => policy.AddRequirements(new EasyBuy.WebAPI.Authorization.Requirements.ManageOrderRequirement()));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.ManageReviews,
+            policy => policy.AddRequirements(new EasyBuy.WebAPI.Authorization.Requirements.ManageReviewRequirement()));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.AccessAdminDashboard,
+            policy => policy.RequireRole("Admin"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.ViewReports,
+            policy => policy.RequireRole("Admin", "Manager"));
+
+        // ====================================================================
+        // CLAIM-BASED POLICIES
+        // ====================================================================
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequireEmailVerified,
+            policy => policy.AddRequirements(new EasyBuy.WebAPI.Authorization.Requirements.EmailVerifiedRequirement()));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequirePhoneVerified,
+            policy => policy.RequireClaim("PhoneNumberConfirmed", "true"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.RequireTwoFactorEnabled,
+            policy => policy.RequireClaim("TwoFactorEnabled", "true"));
+
+        // ====================================================================
+        // SERVICE ACCESS POLICIES
+        // ====================================================================
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.AccessHangfireDashboard,
+            policy => policy.RequireRole("Admin"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.AccessHealthChecks,
+            policy => policy.RequireRole("Admin", "Manager"));
+
+        options.AddPolicy(EasyBuy.WebAPI.Authorization.Policies.AuthorizationPolicies.AccessLogs,
+            policy => policy.RequireRole("Admin"));
     });
+
+    Log.Information("Comprehensive authorization policies configured");
 
     // Configure CORS
     var corsConfig = builder.Configuration.GetSection("Cors");

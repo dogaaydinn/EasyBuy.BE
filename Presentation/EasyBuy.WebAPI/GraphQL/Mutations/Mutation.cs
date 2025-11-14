@@ -10,6 +10,7 @@ using EasyBuy.Application.Features.Products.Commands.UpdateProduct;
 using EasyBuy.Application.Features.Reviews.Commands.CreateReview;
 using EasyBuy.Application.Features.Reviews.Commands.DeleteReview;
 using EasyBuy.Application.Features.Reviews.Commands.UpdateReview;
+using HotChocolate.Authorization;
 using MediatR;
 
 namespace EasyBuy.WebAPI.GraphQL.Mutations;
@@ -17,7 +18,9 @@ namespace EasyBuy.WebAPI.GraphQL.Mutations;
 /// <summary>
 /// Root GraphQL Mutation type.
 /// Provides write operations for all entities using CQRS pattern with MediatR.
+/// All mutations require authentication.
 /// </summary>
+[Authorize]
 public class Mutation
 {
     // ====================================================================
@@ -41,6 +44,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageProducts")]
     public async Task<CreateProductResponse> CreateProductAsync(
         CreateProductDto input,
         [Service] IMediator mediator,
@@ -64,6 +68,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageProducts")]
     public async Task<UpdateProductResponse> UpdateProductAsync(
         Guid id,
         UpdateProductDto input,
@@ -83,6 +88,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageProducts")]
     public async Task<DeleteProductResponse> DeleteProductAsync(
         Guid id,
         [Service] IMediator mediator,
@@ -110,6 +116,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageCategories")]
     public async Task<CreateCategoryResponse> CreateCategoryAsync(
         CreateCategoryDto input,
         [Service] IMediator mediator,
@@ -132,6 +139,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageCategories")]
     public async Task<UpdateCategoryResponse> UpdateCategoryAsync(
         Guid id,
         UpdateCategoryDto input,
@@ -151,6 +159,7 @@ public class Mutation
     ///   }
     /// }
     /// </summary>
+    [Authorize(Policy = "ManageCategories")]
     public async Task<DeleteCategoryResponse> DeleteCategoryAsync(
         Guid id,
         [Service] IMediator mediator,
@@ -162,6 +171,8 @@ public class Mutation
 
     // ====================================================================
     // REVIEW MUTATIONS
+    // Reviews can be created by any authenticated user (handled by class-level [Authorize])
+    // Update/Delete use ManageReviews policy (users own reviews + Admin/Manager moderation)
     // ====================================================================
 
     /// <summary>
