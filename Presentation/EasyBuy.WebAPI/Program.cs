@@ -355,12 +355,30 @@ try
         Log.Warning("Redis not configured - using in-memory distributed cache fallback");
     }
 
-    // Configure Rate Limiting
+    // ====================================================================
+    // ENHANCED RATE LIMITING (IP + Client-Based)
+    // ====================================================================
+    // Multi-tier rate limiting based on user roles:
+    // - Admin: 50 req/s, 500 req/min
+    // - Premium/Manager: 20 req/s, 200 req/min
+    // - Regular: 10 req/s, 100 req/min
+    // - Anonymous: IP-based limits (strictest)
     if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableRateLimiting"))
     {
+        // Configure IP-based rate limiting
         builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("RateLimiting"));
+        builder.Services.Configure<ClientRateLimitOptions>(builder.Configuration.GetSection("RateLimiting"));
+
+        // Register in-memory stores (for single instance) or distributed stores (for multi-instance)
         builder.Services.AddInMemoryRateLimiting();
+
+        // Register custom client ID resolver (maps users to rate limit tiers by role)
+        builder.Services.AddSingleton<IClientResolveContributor, EasyBuy.WebAPI.RateLimiting.UserRoleClientIdResolveContributor>();
+
+        // Register rate limit configuration
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+        Log.Information("Enhanced rate limiting configured: IP-based + Client-based with role-based tiers");
     }
 
     // ====================================================================
