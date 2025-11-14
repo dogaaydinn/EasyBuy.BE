@@ -35,8 +35,18 @@ public static class ServiceRegistration
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTime, DateTimeService>();
 
-        // Register caching service
-        services.AddScoped<ICacheService, RedisCacheService>();
+        // ====================================================================
+        // MULTI-LEVEL CACHING (L1: Memory, L2: Redis, L3: Optional)
+        // ====================================================================
+        // L1: In-memory cache (sub-millisecond latency, 10K entries max)
+        services.AddSingleton<MemoryCacheService>();
+
+        // L2: Redis cache (existing implementation)
+        services.AddScoped<RedisCacheService>();
+
+        // Register both single-level and layered cache services
+        services.AddScoped<ICacheService, RedisCacheService>(); // Legacy/simple cache
+        services.AddScoped<ILayeredCacheService, LayeredCacheService>(); // Multi-level cache
 
         // Register email service
         services.AddScoped<IEmailService, SendGridEmailService>();

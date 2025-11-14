@@ -192,7 +192,18 @@ try
         });
     });
 
-    // Configure Redis Distributed Cache
+    // ====================================================================
+    // MULTI-LEVEL CACHING CONFIGURATION
+    // ====================================================================
+    // L1: In-memory cache with size limit (10K entries max)
+    builder.Services.AddMemoryCache(options =>
+    {
+        options.SizeLimit = 10_000; // Maximum 10K cache entries
+        options.CompactionPercentage = 0.25; // Remove 25% when limit reached
+        options.ExpirationScanFrequency = TimeSpan.FromMinutes(1); // Scan for expired entries every minute
+    });
+
+    // L2: Redis Distributed Cache
     var redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
     if (!string.IsNullOrEmpty(redisConnection) && builder.Configuration.GetValue<bool>("FeatureFlags:EnableDistributedCache"))
     {
@@ -201,17 +212,18 @@ try
             options.Configuration = redisConnection;
             options.InstanceName = "EasyBuy_";
         });
+        Log.Information("Redis L2 cache configured: {RedisConnection}", redisConnection.Split(',')[0]);
     }
     else
     {
         // Fallback to in-memory cache
         builder.Services.AddDistributedMemoryCache();
+        Log.Warning("Redis not configured - using in-memory distributed cache fallback");
     }
 
     // Configure Rate Limiting
     if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableRateLimiting"))
     {
-        builder.Services.AddMemoryCache();
         builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("RateLimiting"));
         builder.Services.AddInMemoryRateLimiting();
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
