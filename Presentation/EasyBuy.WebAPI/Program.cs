@@ -445,6 +445,12 @@ try
             // TODO: Add authorization when Identity is configured
             // Authorization = new[] { new HangfireAuthorizationFilter() }
         });
+
+        // Schedule recurring background jobs
+        using var scope = app.Services.CreateScope();
+        var jobScheduler = scope.ServiceProvider.GetRequiredService<EasyBuy.Infrastructure.BackgroundJobs.JobScheduler>();
+        jobScheduler.ScheduleRecurringJobs();
+        Log.Information("Hangfire recurring jobs scheduled successfully");
     }
 
     // Map Controllers

@@ -74,6 +74,17 @@ public static class ServiceRegistration
         // Register domain event dispatcher for async event processing
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
+        // ====================================================================
+        // HANGFIRE BACKGROUND JOBS
+        // ====================================================================
+        // Register all background jobs for Hangfire
+        services.AddTransient<BackgroundJobs.AbandonedCartReminderJob>();
+        services.AddTransient<BackgroundJobs.DailySalesReportJob>();
+        services.AddTransient<BackgroundJobs.CleanupExpiredTokensJob>();
+        services.AddTransient<BackgroundJobs.InventorySynchronizationJob>();
+        services.AddTransient<BackgroundJobs.EmailQueueProcessorJob>();
+        services.AddSingleton<BackgroundJobs.JobScheduler>();
+
         return services;
     }
 
