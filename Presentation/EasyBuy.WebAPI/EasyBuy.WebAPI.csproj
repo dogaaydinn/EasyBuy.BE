@@ -68,6 +68,15 @@
         <!-- Feature Flags -->
         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.5.0"/>
 
+        <!-- GraphQL -->
+        <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.12"/>
+        <PackageReference Include="HotChocolate.Data" Version="13.9.12"/>
+        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.9.12"/>
+
+        <!-- Elasticsearch -->
+        <PackageReference Include="NEST" Version="7.17.5"/>
+        <PackageReference Include="Elasticsearch.Net" Version="7.17.5"/>
+
         <!-- Compression -->
         <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0"/>
 

@@ -18,7 +18,12 @@ using EasyBuy.Infrastructure.Services.Sms;
 using EasyBuy.Infrastructure.Services.Storage;
 using EasyBuy.Infrastructure.Services.Storage.Azure;
 using EasyBuy.Infrastructure.Services.Storage.Local;
+using EasyBuy.Infrastructure.Services.Elasticsearch;
+using EasyBuy.Infrastructure.Services.SignalR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nest;
+using Elasticsearch.Net;
 
 namespace EasyBuy.Infrastructure;
 
@@ -68,6 +73,9 @@ public static class ServiceRegistration
         // Register authentication service
         services.AddScoped<ITokenService, JwtTokenService>();
 
+        // Register SignalR notification service
+        services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
+
         // ====================================================================
         // EVENT-DRIVEN ARCHITECTURE
         // ====================================================================
@@ -99,6 +107,45 @@ public static class ServiceRegistration
     {
         // Import MassTransitConfiguration
         return Messaging.MassTransitConfiguration.AddMassTransitWithRabbitMq(services, configuration);
+    }
+
+    /// <summary>
+    /// Adds Elasticsearch service for full-text search capabilities.
+    /// Call this from Program.cs with configuration:
+    /// builder.Services.AddElasticsearch(builder.Configuration);
+    /// </summary>
+    public static IServiceCollection AddElasticsearch(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var elasticsearchUrl = configuration["Elasticsearch:Url"];
+        if (string.IsNullOrEmpty(elasticsearchUrl))
+        {
+            throw new InvalidOperationException("Elasticsearch:Url is not configured");
+        }
+
+        var settings = new ConnectionSettings(new Uri(elasticsearchUrl))
+            .DefaultIndex("products")
+            .DefaultMappingFor<Domain.Entities.Product>(m => m
+                .IndexName("products")
+                .IdProperty(p => p.Id))
+            .EnableApiVersioningHeader()
+            .ThrowExceptions(false)
+            .PrettyJson();
+
+        // Add basic authentication if configured
+        var username = configuration["Elasticsearch:Username"];
+        var password = configuration["Elasticsearch:Password"];
+        if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+        {
+            settings.BasicAuthentication(username, password);
+        }
+
+        var client = new ElasticClient(settings);
+        services.AddSingleton<IElasticClient>(client);
+        services.AddScoped<IElasticsearchService, ElasticsearchService>();
+
+        return services;
     }
 
     public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorage

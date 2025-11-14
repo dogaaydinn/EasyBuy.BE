@@ -99,6 +99,66 @@ try
     builder.Services.AddFeatureManagement();
     Log.Information("Feature Management configured");
 
+    // ============================================================================
+    // GRAPHQL API
+    // ============================================================================
+    // HotChocolate GraphQL server provides:
+    // - Type-safe queries and mutations
+    // - Automatic schema generation
+    // - Built-in filtering, sorting, and pagination
+    // - Integration with EF Core
+    // - GraphQL IDE (Banana Cake Pop) at /graphql
+    if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableGraphQL"))
+    {
+        builder.Services
+            .AddGraphQLServer()
+            .AddQueryType<EasyBuy.WebAPI.GraphQL.Queries.Query>()
+            .AddMutationType<EasyBuy.WebAPI.GraphQL.Mutations.Mutation>()
+            .AddProjections()
+            .AddFiltering()
+            .AddSorting()
+            .RegisterDbContext<EasyBuyDbContext>(DbContextKind.Pooled);
+
+        Log.Information("GraphQL API configured with HotChocolate");
+    }
+
+    // ============================================================================
+    // ELASTICSEARCH FULL-TEXT SEARCH
+    // ============================================================================
+    // Elasticsearch provides powerful full-text search capabilities:
+    // - Product search with fuzzy matching
+    // - Autocomplete suggestions
+    // - Multi-field search (name, description, category)
+    // - Relevance scoring and boosting
+    if (builder.Configuration.GetValue<bool>("Elasticsearch:EnableElasticsearch"))
+    {
+        builder.Services.AddElasticsearch(builder.Configuration);
+        Log.Information("Elasticsearch configured: {Url}",
+            builder.Configuration["Elasticsearch:Url"]);
+    }
+
+    // ============================================================================
+    // SIGNALR REAL-TIME NOTIFICATIONS
+    // ============================================================================
+    // SignalR provides WebSocket-based real-time communication:
+    // - Order status updates
+    // - Product stock alerts
+    // - Payment confirmations
+    // - Shipment tracking
+    if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableSignalR", false))
+    {
+        builder.Services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+            options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+            options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+            options.MaximumReceiveMessageSize = 32 * 1024; // 32 KB
+        });
+
+        Log.Information("SignalR real-time notifications configured");
+    }
+
     // Configure ASP.NET Core Identity
     builder.Services.AddIdentity<AppUser, AppRole>(options =>
     {
@@ -464,6 +524,21 @@ try
         Log.Information("Hangfire recurring jobs scheduled successfully");
     }
 
+    // GraphQL Endpoint
+    if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableGraphQL"))
+    {
+        app.MapGraphQL("/graphql");
+        Log.Information("GraphQL endpoint mapped to /graphql");
+    }
+
+    // SignalR Hubs
+    if (builder.Configuration.GetValue<bool>("FeatureFlags:EnableSignalR", false))
+    {
+        app.MapHub<EasyBuy.WebAPI.Hubs.NotificationHub>("/hubs/notifications");
+        app.MapHub<EasyBuy.WebAPI.Hubs.OrderHub>("/hubs/orders");
+        Log.Information("SignalR hubs mapped: /hubs/notifications, /hubs/orders");
+    }
+
     // Map Controllers
     app.MapControllers();
 
@@ -478,7 +553,13 @@ try
         {
             health = "/health",
             swagger = "/swagger",
-            hangfire = builder.Configuration["Hangfire:DashboardPath"] ?? "/hangfire"
+            hangfire = builder.Configuration["Hangfire:DashboardPath"] ?? "/hangfire",
+            graphql = builder.Configuration.GetValue<bool>("FeatureFlags:EnableGraphQL") ? "/graphql" : null,
+            signalr = builder.Configuration.GetValue<bool>("FeatureFlags:EnableSignalR", false) ? new
+            {
+                notifications = "/hubs/notifications",
+                orders = "/hubs/orders"
+            } : null
         }
     });
 
