@@ -3,6 +3,7 @@ using EasyBuy.Application.DTOs.Baskets;
 using EasyBuy.Application.DTOs.Categories;
 using EasyBuy.Application.DTOs.Orders;
 using EasyBuy.Application.DTOs.Products;
+using EasyBuy.Application.DTOs.Reviews;
 using EasyBuy.Application.DTOs.Users;
 using EasyBuy.Application.Features.Products.Commands.CreateProduct;
 using EasyBuy.Application.Features.Products.Commands.UpdateProduct;
@@ -34,7 +35,12 @@ public class MappingProfile : AutoMapper.Profile
 
         // Review mappings
         CreateMap<Review, ReviewDto>()
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName ?? "Anonymous"));
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName ?? "Anonymous"))
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+
+        CreateMap<CreateReviewDto, Review>();
+        CreateMap<UpdateReviewDto, Review>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         // Order mappings
         CreateMap<Order, OrderDto>()
