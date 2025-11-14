@@ -1,71 +1,73 @@
-using EasyBuy.Domain.Enums;
-
 namespace EasyBuy.Application.DTOs.Orders;
 
-public class OrderDto
+/// <summary>
+/// Order Data Transfer Object for API responses.
+/// </summary>
+public sealed class OrderDto
 {
     public Guid Id { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
     public Guid UserId { get; set; }
-    public decimal Total { get; set; }
-    public OrderStatus Status { get; set; }
-    public DateTime OrderDate { get; set; }
+    public string UserEmail { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public decimal SubTotal { get; set; }
+    public decimal Tax { get; set; }
+    public decimal ShippingCost { get; set; }
+    public decimal TotalAmount { get; set; }
+    public string PaymentMethod { get; set; } = string.Empty;
+    public string PaymentStatus { get; set; } = string.Empty;
+    public OrderAddressDto ShippingAddress { get; set; } = new();
+    public OrderAddressDto BillingAddress { get; set; } = new();
     public List<OrderItemDto> Items { get; set; } = new();
-    public DeliveryDto? Delivery { get; set; }
-    public PaymentDto? Payment { get; set; }
-    public string ShippingAddress { get; set; } = string.Empty;
+    public DateTime OrderDate { get; set; }
+    public DateTime? ShippedDate { get; set; }
+    public DateTime? DeliveredDate { get; set; }
+    public string? TrackingNumber { get; set; }
+    public string? Notes { get; set; }
 }
 
-public class OrderListDto
+public sealed class OrderItemDto
 {
     public Guid Id { get; set; }
-    public string OrderNumber { get; set; } = string.Empty;
-    public decimal Total { get; set; }
-    public OrderStatus Status { get; set; }
-    public DateTime OrderDate { get; set; }
-    public int ItemCount { get; set; }
-}
-
-public class OrderItemDto
-{
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
-    public decimal Price { get; set; }
     public int Quantity { get; set; }
-    public decimal Total => Price * Quantity;
+    public decimal UnitPrice { get; set; }
+    public decimal TotalPrice { get; set; }
+    public string? ProductImageUrl { get; set; }
 }
 
-public class CreateOrderDto
+public sealed class OrderAddressDto
 {
-    public required List<OrderItemDto> Items { get; set; }
-    public Guid? AddressId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string AddressLine1 { get; set; } = string.Empty;
+    public string? AddressLine2 { get; set; }
+    public string City { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string PostalCode { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+}
+
+public sealed class CreateOrderDto
+{
+    public List<CreateOrderItemDto> Items { get; set; } = new();
+    public OrderAddressDto ShippingAddress { get; set; } = new();
+    public OrderAddressDto BillingAddress { get; set; } = new();
+    public string PaymentMethod { get; set; } = string.Empty;
     public string? CouponCode { get; set; }
-    public PaymentType PaymentType { get; set; }
-    public string? PaymentDetails { get; set; }
+    public string? Notes { get; set; }
 }
 
-public class UpdateOrderStatusDto
+public sealed class CreateOrderItemDto
 {
-    public Guid OrderId { get; set; }
-    public OrderStatus NewStatus { get; set; }
-    public string? Reason { get; set; }
+    public Guid ProductId { get; set; }
+    public int Quantity { get; set; }
 }
 
-public class DeliveryDto
+public sealed class UpdateOrderStatusDto
 {
-    public Guid Id { get; set; }
-    public string CompanyName { get; set; } = string.Empty;
-    public decimal Price { get; set; }
+    public string Status { get; set; } = string.Empty;
     public string? TrackingNumber { get; set; }
-    public DateTime? EstimatedDeliveryDate { get; set; }
-}
-
-public class PaymentDto
-{
-    public Guid Id { get; set; }
-    public decimal Amount { get; set; }
-    public PaymentType PaymentType { get; set; }
-    public PaymentStatus Status { get; set; }
-    public string? TransactionId { get; set; }
-    public DateTime? ProcessedAt { get; set; }
+    public string? Notes { get; set; }
 }
