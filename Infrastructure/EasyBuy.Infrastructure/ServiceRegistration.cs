@@ -2,9 +2,12 @@ using EasyBuy.Application.Abstractions.Storage;
 using EasyBuy.Application.Abstractions.Storage.Azure;
 using EasyBuy.Application.Abstractions.Storage.Local;
 using EasyBuy.Application.Common.Interfaces;
+using EasyBuy.Application.Contracts.Basket;
+using EasyBuy.Application.Contracts.Caching;
 using EasyBuy.Application.Contracts.Events;
 using EasyBuy.Infrastructure.Enums;
 using EasyBuy.Infrastructure.Services.Auth;
+using EasyBuy.Infrastructure.Services.Basket;
 using EasyBuy.Infrastructure.Services.Caching;
 using EasyBuy.Infrastructure.Services.CurrentUser;
 using EasyBuy.Infrastructure.Services.DateTime;
@@ -47,6 +50,11 @@ public static class ServiceRegistration
         // Register both single-level and layered cache services
         services.AddScoped<ICacheService, RedisCacheService>(); // Legacy/simple cache
         services.AddScoped<ILayeredCacheService, LayeredCacheService>(); // Multi-level cache
+
+        // ====================================================================
+        // BASKET SERVICE (Redis-based with 30-day expiration)
+        // ====================================================================
+        services.AddScoped<IBasketService, RedisBasketService>();
 
         // Register email service
         services.AddScoped<IEmailService, SendGridEmailService>();
