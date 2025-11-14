@@ -1,5 +1,6 @@
 using AutoMapper;
 using EasyBuy.Application.DTOs.Baskets;
+using EasyBuy.Application.DTOs.Categories;
 using EasyBuy.Application.DTOs.Orders;
 using EasyBuy.Application.DTOs.Products;
 using EasyBuy.Application.DTOs.Users;
@@ -78,5 +79,16 @@ public class MappingProfile : AutoMapper.Profile
 
         CreateMap<Address, AddressDto>();
         CreateMap<AddressDto, Address>();
+
+        // Category mappings
+        CreateMap<Category, CategoryDto>()
+            .ForMember(dest => dest.ParentCategoryName, opt => opt.MapFrom(src => src.ParentCategory != null ? src.ParentCategory.Name : null))
+            .ForMember(dest => dest.ProductCount, opt => opt.Ignore())
+            .ForMember(dest => dest.SubCategoryCount, opt => opt.Ignore())
+            .ForMember(dest => dest.SubCategories, opt => opt.Ignore());
+
+        CreateMap<CreateCategoryDto, Category>();
+        CreateMap<UpdateCategoryDto, Category>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

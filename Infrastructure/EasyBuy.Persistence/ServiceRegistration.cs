@@ -1,9 +1,11 @@
 using EasyBuy.Application.Common.Interfaces;
+using EasyBuy.Application.Repositories.Category;
 using EasyBuy.Application.Repositories.Customer;
 using EasyBuy.Application.Repositories.File;
 using EasyBuy.Application.Repositories.Order;
 using EasyBuy.Application.Repositories.Product;
 using EasyBuy.Persistence.Contexts;
+using EasyBuy.Persistence.Repositories.Categories;
 using EasyBuy.Persistence.Repositories.Customers;
 using EasyBuy.Persistence.Repositories.Files;
 using EasyBuy.Persistence.Repositories.Orders;
@@ -35,6 +37,8 @@ public static class ServiceRegistration
 
         services.AddScoped<IProductReadRepository, EfProductReadRepository>();
         services.AddScoped<IProductWriteRepository, EfProductWriteRepository>();
+        services.AddScoped<ICategoryReadRepository, EfCategoryReadRepository>();
+        services.AddScoped<ICategoryWriteRepository, EfCategoryWriteRepository>();
         services.AddScoped<IOrderReadRepository, EfOrderReadRepository>();
         services.AddScoped<IOrderWriteRepository, EfOrderWriteRepository>();
         services.AddScoped<ICustomerReadRepository, EfCustomerReadRepository>();
