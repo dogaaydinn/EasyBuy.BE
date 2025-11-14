@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using AspNetCoreRateLimit;
+using Azure.Identity;
 using EasyBuy.Application;
 using EasyBuy.Domain.Entities.Identity;
 using EasyBuy.Infrastructure;
@@ -21,6 +22,42 @@ using System.IO.Compression;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ============================================================================
+// ENTERPRISE SECRETS MANAGEMENT
+// ============================================================================
+// Production: Use Azure Key Vault for secure secret storage
+// Development: Use User Secrets (right-click project > Manage User Secrets)
+// ============================================================================
+if (builder.Environment.IsProduction())
+{
+    var keyVaultUrl = builder.Configuration["KeyVault:Url"];
+    if (!string.IsNullOrEmpty(keyVaultUrl))
+    {
+        var keyVaultUri = new Uri(keyVaultUrl);
+
+        // Use DefaultAzureCredential which supports:
+        // - Managed Identity (production in Azure)
+        // - Azure CLI (local development)
+        // - Environment variables
+        // - Visual Studio authentication
+        builder.Configuration.AddAzureKeyVault(
+            keyVaultUri,
+            new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            {
+                // Exclude interactive authentication for production
+                ExcludeInteractiveBrowserCredential = true,
+                // Prioritize Managed Identity in Azure
+                ManagedIdentityClientId = builder.Configuration["KeyVault:ManagedIdentityClientId"]
+            }));
+
+        Log.Information("Azure Key Vault configured: {KeyVaultUrl}", keyVaultUrl);
+    }
+    else
+    {
+        Log.Warning("Production environment detected but KeyVault:Url not configured. Using appsettings.");
+    }
+}
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()

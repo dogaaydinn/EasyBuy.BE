@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Testing Framework -->
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+
+        <!-- Assertions -->
+        <PackageReference Include="FluentAssertions" Version="6.12.2" />
+
+        <!-- Architecture Testing -->
+        <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+
+        <!-- Coverage -->
+        <PackageReference Include="coverlet.collector" Version="6.0.2">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\EasyBuy.Domain\EasyBuy.Domain.csproj" />
+        <ProjectReference Include="..\..\Core\EasyBuy.Application\EasyBuy.Application.csproj" />
+        <ProjectReference Include="..\..\Infrastructure\EasyBuy.Persistence\EasyBuy.Persistence.csproj" />
+        <ProjectReference Include="..\..\Infrastructure\EasyBuy.Infrastructure\EasyBuy.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Presentation\EasyBuy.WebAPI\EasyBuy.WebAPI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+        <Using Include="FluentAssertions" />
+        <Using Include="NetArchTest.Rules" />
+    </ItemGroup>
+
+</Project>
