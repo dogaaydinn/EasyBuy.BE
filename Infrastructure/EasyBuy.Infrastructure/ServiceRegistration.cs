@@ -2,12 +2,14 @@ using EasyBuy.Application.Abstractions.Storage;
 using EasyBuy.Application.Abstractions.Storage.Azure;
 using EasyBuy.Application.Abstractions.Storage.Local;
 using EasyBuy.Application.Common.Interfaces;
+using EasyBuy.Application.Contracts.Events;
 using EasyBuy.Infrastructure.Enums;
 using EasyBuy.Infrastructure.Services.Auth;
 using EasyBuy.Infrastructure.Services.Caching;
 using EasyBuy.Infrastructure.Services.CurrentUser;
 using EasyBuy.Infrastructure.Services.DateTime;
 using EasyBuy.Infrastructure.Services.Email;
+using EasyBuy.Infrastructure.Services.Events;
 using EasyBuy.Infrastructure.Services.Payment;
 using EasyBuy.Infrastructure.Services.Sms;
 using EasyBuy.Infrastructure.Services.Storage;
@@ -47,6 +49,12 @@ public static class ServiceRegistration
 
         // Register authentication service
         services.AddScoped<ITokenService, JwtTokenService>();
+
+        // ====================================================================
+        // EVENT-DRIVEN ARCHITECTURE
+        // ====================================================================
+        // Register domain event dispatcher for async event processing
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         return services;
     }
