@@ -1,5 +1,8 @@
 using System.Reflection;
 using EasyBuy.Application.Common.Behaviors;
+using EasyBuy.Application.Contracts.Events;
+using EasyBuy.Application.Features.Events.Handlers;
+using EasyBuy.Domain.Events;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +32,17 @@ public static class ServiceRegistration
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+
+        // ====================================================================
+        // DOMAIN EVENT HANDLERS (Event-Driven Architecture)
+        // ====================================================================
+        // Register all domain event handlers for asynchronous event processing
+        services.AddTransient<IDomainEventHandler<UserRegisteredEvent>, UserRegisteredEventHandler>();
+        services.AddTransient<IDomainEventHandler<OrderCreatedEvent>, OrderCreatedEventHandler>();
+        services.AddTransient<IDomainEventHandler<OrderStatusChangedEvent>, OrderStatusChangedEventHandler>();
+        services.AddTransient<IDomainEventHandler<ProductInventoryChangedEvent>, ProductInventoryChangedEventHandler>();
+        services.AddTransient<IDomainEventHandler<PaymentProcessedEvent>, PaymentProcessedEventHandler>();
+        services.AddTransient<IDomainEventHandler<ProductCreatedEvent>, ProductCreatedEventHandler>();
 
         return services;
     }

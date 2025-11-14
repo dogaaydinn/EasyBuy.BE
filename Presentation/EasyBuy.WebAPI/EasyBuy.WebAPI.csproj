@@ -79,6 +79,10 @@
 
         <!-- NewtonsoftJson for complex serialization -->
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11"/>
+
+        <!-- Azure Key Vault for Production Secrets -->
+        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2"/>
+        <PackageReference Include="Azure.Identity" Version="1.13.1"/>
     </ItemGroup>
 
     <ItemGroup>
