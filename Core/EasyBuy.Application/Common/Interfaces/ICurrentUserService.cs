@@ -2,9 +2,10 @@ namespace EasyBuy.Application.Common.Interfaces;
 
 public interface ICurrentUserService
 {
-    Guid? UserId { get; }
+    string? UserId { get; }
     string? UserName { get; }
-    string? Email { get; }
+    string? UserEmail { get; }
+    string? PhoneNumber { get; }
     bool IsAuthenticated { get; }
     bool IsInRole(string role);
     IEnumerable<string> Roles { get; }
