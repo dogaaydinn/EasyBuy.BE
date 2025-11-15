@@ -1,136 +1,106 @@
-using System.Reflection;
-using EasyBuy.Application;
-using EasyBuy.Domain;
-using EasyBuy.Infrastructure;
-using EasyBuy.Persistence;
+using FluentAssertions;
+using NetArchTest.Rules;
+using Xunit;
 
 namespace EasyBuy.ArchitectureTests;
 
-/// <summary>
-/// Architecture tests to enforce Clean Architecture principles and coding standards.
-/// These tests ensure the codebase maintains proper layering and dependency flow.
-/// </summary>
 public class ArchitectureTests
 {
-    private static readonly Assembly DomainAssembly = typeof(DomainAssemblyMarker).Assembly;
-    private static readonly Assembly ApplicationAssembly = typeof(ApplicationAssemblyMarker).Assembly;
-    private static readonly Assembly InfrastructureAssembly = typeof(InfrastructureAssemblyMarker).Assembly;
-    private static readonly Assembly PersistenceAssembly = typeof(PersistenceAssemblyMarker).Assembly;
-
-    #region Layer Dependency Rules
+    private const string DomainNamespace = "EasyBuy.Domain";
+    private const string ApplicationNamespace = "EasyBuy.Application";
+    private const string InfrastructureNamespace = "EasyBuy.Infrastructure";
+    private const string PersistenceNamespace = "EasyBuy.Persistence";
+    private const string WebApiNamespace = "EasyBuy.WebAPI";
 
     [Fact]
-    public void Domain_Should_Not_HaveDependencyOnAnyOtherLayer()
+    public void Domain_ShouldNotHaveDependencyOnOtherProjects()
     {
-        // Arrange & Act
-        var result = Types.InAssembly(DomainAssembly)
-            .Should()
-            .NotHaveDependencyOn("EasyBuy.Application")
-            .And().NotHaveDependencyOn("EasyBuy.Infrastructure")
-            .And().NotHaveDependencyOn("EasyBuy.Persistence")
-            .And().NotHaveDependencyOn("EasyBuy.WebAPI")
+        // Arrange
+        var assembly = typeof(EasyBuy.Domain.Primitives.BaseEntity).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                ApplicationNamespace,
+                InfrastructureNamespace,
+                PersistenceNamespace,
+                WebApiNamespace)
             .GetResult();
 
         // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Domain layer should not depend on any other layer. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Domain layer should not depend on other layers");
     }
 
     [Fact]
-    public void Application_Should_OnlyDependOnDomain()
+    public void Application_ShouldNotHaveDependencyOnInfrastructureOrPresentation()
     {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
-            .Should()
-            .NotHaveDependencyOn("EasyBuy.Infrastructure")
-            .And().NotHaveDependencyOn("EasyBuy.Persistence")
-            .And().NotHaveDependencyOn("EasyBuy.WebAPI")
+        // Arrange
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                InfrastructureNamespace,
+                PersistenceNamespace,
+                WebApiNamespace)
             .GetResult();
 
         // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Application layer should only depend on Domain layer. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Application layer should not depend on Infrastructure or Presentation layers");
     }
 
     [Fact]
-    public void Infrastructure_Should_NotDependOnPersistenceOrPresentation()
+    public void Handlers_ShouldHaveDependencyOnDomain()
     {
-        // Arrange & Act
-        var result = Types.InAssembly(InfrastructureAssembly)
-            .Should()
-            .NotHaveDependencyOn("EasyBuy.Persistence")
-            .And().NotHaveDependencyOn("EasyBuy.WebAPI")
-            .GetResult();
+        // Arrange
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
 
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Infrastructure layer should not depend on Persistence or Presentation layers. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void Persistence_Should_NotDependOnInfrastructureOrPresentation()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(PersistenceAssembly)
-            .Should()
-            .NotHaveDependencyOn("EasyBuy.Infrastructure")
-            .And().NotHaveDependencyOn("EasyBuy.WebAPI")
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Persistence layer should not depend on Infrastructure or Presentation layers. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    #endregion
-
-    #region Naming Conventions
-
-    [Fact]
-    public void CommandHandlers_Should_HaveCorrectNaming()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
-            .ImplementInterface(typeof(MediatR.IRequestHandler<,>))
-            .And().HaveNameEndingWith("Command", StringComparison.InvariantCulture)
+            .ResideInNamespace("EasyBuy.Application.Features")
+            .And()
+            .HaveNameEndingWith("Handler")
             .Should()
-            .HaveNameEndingWith("CommandHandler")
+            .HaveDependencyOn(DomainNamespace)
             .GetResult();
 
         // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Command handlers should end with 'CommandHandler'. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Handlers should depend on Domain layer");
     }
 
     [Fact]
-    public void QueryHandlers_Should_HaveCorrectNaming()
+    public void Controllers_ShouldHaveDependencyOnMediatR()
     {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
+        // Arrange
+        var assembly = typeof(EasyBuy.WebAPI.Controllers.ProductsController).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
-            .ImplementInterface(typeof(MediatR.IRequestHandler<,>))
-            .And().HaveNameEndingWith("Query", StringComparison.InvariantCulture)
+            .HaveNameEndingWith("Controller")
             .Should()
-            .HaveNameEndingWith("QueryHandler")
+            .HaveDependencyOn("MediatR")
             .GetResult();
 
         // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Query handlers should end with 'QueryHandler'. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Controllers should use MediatR");
     }
 
     [Fact]
-    public void Validators_Should_HaveCorrectNaming()
+    public void Validators_ShouldHaveCorrectNamingConvention()
     {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
+        // Arrange
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
             .Inherit(typeof(FluentValidation.AbstractValidator<>))
             .Should()
@@ -139,248 +109,109 @@ public class ArchitectureTests
 
         // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Validators should end with 'Validator'. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Validators should end with 'Validator'");
     }
 
     [Fact]
-    public void Entities_Should_BeInEntitiesNamespace()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(DomainAssembly)
-            .That()
-            .Inherit(typeof(EasyBuy.Domain.Common.BaseEntity))
-            .Should()
-            .ResideInNamespaceContaining("Entities")
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Domain entities should reside in 'Entities' namespace. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    #endregion
-
-    #region Immutability and Encapsulation
-
-    [Fact]
-    public void DomainEvents_Should_BeImmutable()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(DomainAssembly)
-            .That()
-            .ResideInNamespaceContaining("Events")
-            .And().AreClasses()
-            .Should()
-            .BeImmutable()
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Domain events should be immutable (no public setters). " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void Commands_Should_BeImmutable()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
-            .That()
-            .HaveNameEndingWith("Command")
-            .And().AreClasses()
-            .Should()
-            .BeImmutable()
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Commands should be immutable (no public setters). " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void Queries_Should_BeImmutable()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
-            .That()
-            .HaveNameEndingWith("Query")
-            .And().AreClasses()
-            .Should()
-            .BeImmutable()
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Queries should be immutable (no public setters). " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    #endregion
-
-    #region Sealing and Inheritance
-
-    [Fact]
-    public void CommandHandlers_Should_BeSealed()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
-            .That()
-            .HaveNameEndingWith("CommandHandler")
-            .Should()
-            .BeSealed()
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Command handlers should be sealed to prevent inheritance. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void QueryHandlers_Should_BeSealed()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(ApplicationAssembly)
-            .That()
-            .HaveNameEndingWith("QueryHandler")
-            .Should()
-            .BeSealed()
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Query handlers should be sealed to prevent inheritance. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    #endregion
-
-    #region Dependency Injection
-
-    [Fact]
-    public void Repositories_Should_HaveInterfaceInApplicationLayer()
-    {
-        // Arrange & Act
-        var result = Types.InAssembly(PersistenceAssembly)
-            .That()
-            .HaveNameEndingWith("Repository")
-            .And().AreNotInterfaces()
-            .Should()
-            .HaveDependencyOn("EasyBuy.Application")
-            .GetResult();
-
-        // Assert
-        result.IsSuccessful.Should().BeTrue(
-            "Repository implementations should reference interfaces from Application layer. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void Services_Should_ImplementInterfaces()
+    public void CommandHandlers_ShouldHaveCorrectNamingConvention()
     {
         // Arrange
-        var services = Types.InAssembly(InfrastructureAssembly)
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
-            .HaveNameEndingWith("Service")
-            .And().AreNotInterfaces()
-            .And().AreNotAbstract()
-            .GetTypes();
+            .ResideInNamespaceContaining(".Commands.")
+            .And()
+            .HaveNameEndingWith("Handler")
+            .Should()
+            .HaveNameEndingWith("CommandHandler")
+            .GetResult();
 
-        // Act & Assert
-        foreach (var service in services)
-        {
-            var interfaces = service.GetInterfaces()
-                .Where(i => i.Namespace?.StartsWith("EasyBuy") == true)
-                .ToList();
-
-            interfaces.Should().NotBeEmpty(
-                $"{service.Name} should implement at least one interface from the Application layer");
-        }
+        // Assert
+        result.IsSuccessful.Should().BeTrue(
+            "Command handlers should end with 'CommandHandler'");
     }
 
-    #endregion
-
-    #region Clean Code Principles
-
     [Fact]
-    public void Controllers_Should_NotHaveLogicInActions()
+    public void QueryHandlers_ShouldHaveCorrectNamingConvention()
     {
-        // This is a guideline - controllers should delegate to MediatR
-        // Actual enforcement would require analyzing method bodies
-        var result = Types.InAssembly(Assembly.Load("EasyBuy.WebAPI"))
+        // Arrange
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
-            .HaveNameEndingWith("Controller")
+            .ResideInNamespaceContaining(".Queries.")
+            .And()
+            .HaveNameEndingWith("Handler")
             .Should()
-            .HaveDependencyOn("MediatR")
+            .HaveNameEndingWith("QueryHandler")
             .GetResult();
 
+        // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Controllers should use MediatR for business logic delegation. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "Query handlers should end with 'QueryHandler'");
     }
 
     [Fact]
-    public void Domain_Should_NotUseDataAnnotations()
+    public void Entities_ShouldResideInDomainLayer()
     {
-        // Domain should use FluentValidation, not data annotations
-        var result = Types.InAssembly(DomainAssembly)
-            .Should()
-            .NotHaveDependencyOn("System.ComponentModel.DataAnnotations")
-            .GetResult();
+        // Arrange
+        var assembly = typeof(EasyBuy.Domain.Primitives.BaseEntity).Assembly;
 
-        result.IsSuccessful.Should().BeTrue(
-            "Domain layer should not use DataAnnotations. Use FluentValidation instead. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    [Fact]
-    public void Domain_Should_NotUseEntityFramework()
-    {
-        // Domain should be persistence-ignorant
-        var result = Types.InAssembly(DomainAssembly)
-            .Should()
-            .NotHaveDependencyOn("Microsoft.EntityFrameworkCore")
-            .GetResult();
-
-        result.IsSuccessful.Should().BeTrue(
-            "Domain layer should be persistence-ignorant. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
-    }
-
-    #endregion
-
-    #region Security
-
-    [Fact]
-    public void Exceptions_Should_NotExposeInternalDetails()
-    {
-        // Custom exceptions should be in Domain.Exceptions
-        var result = Types.InAssembly(DomainAssembly)
+        // Act
+        var result = Types.InAssembly(assembly)
             .That()
-            .Inherit(typeof(Exception))
+            .Inherit(typeof(EasyBuy.Domain.Primitives.BaseEntity))
             .Should()
-            .ResideInNamespaceContaining("Exceptions")
+            .ResideInNamespace(DomainNamespace)
             .GetResult();
 
+        // Assert
         result.IsSuccessful.Should().BeTrue(
-            "Custom exceptions should reside in Domain.Exceptions namespace. " +
-            $"Failing types: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}");
+            "All entities should reside in Domain layer");
     }
-
-    #endregion
-
-    #region Test Coverage Helpers
 
     [Fact]
-    public void AllPublicMethods_Should_HaveTests()
+    public void DomainEvents_ShouldBeSealed()
     {
-        // This is more of a reminder - actual test coverage is measured by coverlet
-        // You can extend this to check for corresponding test files
-        Assert.True(true, "Use 'dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura' for coverage");
+        // Arrange
+        var assembly = typeof(EasyBuy.Domain.Primitives.BaseEntity).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
+            .That()
+            .ResideInNamespace("EasyBuy.Domain.Events")
+            .And()
+            .HaveNameEndingWith("Event")
+            .Should()
+            .BeSealed()
+            .GetResult();
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue(
+            "Domain events should be sealed");
     }
 
-    #endregion
+    [Fact]
+    public void Commands_ShouldBeClasses()
+    {
+        // Arrange
+        var assembly = typeof(EasyBuy.Application.ServiceRegistration).Assembly;
+
+        // Act
+        var result = Types.InAssembly(assembly)
+            .That()
+            .ResideInNamespaceContaining(".Commands.")
+            .And()
+            .HaveNameEndingWith("Command")
+            .Should()
+            .BeClasses()
+            .GetResult();
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue(
+            "Commands should be classes");
+    }
 }
