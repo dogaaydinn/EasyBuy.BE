@@ -2,6 +2,7 @@ using EasyBuy.Application.Abstractions.Storage;
 using EasyBuy.Application.Abstractions.Storage.Azure;
 using EasyBuy.Application.Abstractions.Storage.Local;
 using EasyBuy.Application.Common.Interfaces;
+using EasyBuy.Application.Contracts.Caching;
 using EasyBuy.Application.Contracts.Events;
 using EasyBuy.Infrastructure.Enums;
 using EasyBuy.Infrastructure.Services.Auth;
@@ -15,6 +16,7 @@ using EasyBuy.Infrastructure.Services.Sms;
 using EasyBuy.Infrastructure.Services.Storage;
 using EasyBuy.Infrastructure.Services.Storage.Azure;
 using EasyBuy.Infrastructure.Services.Storage.Local;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyBuy.Infrastructure;
@@ -35,8 +37,11 @@ public static class ServiceRegistration
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTime, DateTimeService>();
 
-        // Register caching service
+        // Register caching services
         services.AddScoped<ICacheService, RedisCacheService>();
+
+        // Register multi-level caching (L1 in-memory + L2 Redis)
+        services.AddScoped<ILayeredCacheService, LayeredCacheService>();
 
         // Register email service
         services.AddScoped<IEmailService, SendGridEmailService>();
